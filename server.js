@@ -749,3 +749,5 @@ server.listen(PORT, () => {
     console.log(`🌐 Acesse no navegador: http://localhost:${PORT}`);
     console.log(`======================================================\n`);
 });
+
+module.exports = server;
