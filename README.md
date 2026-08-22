@@ -74,7 +74,7 @@ graph LR
 
 Desenvolvido com dedicação para a comunidade docente do **SENAI-SP**.
 
-| **Gustavo da Silva Feriani** | **Google Antigravity** |
+| **Gustavo Feriani** | **Google Antigravity** |
 | :---: | :---: |
 | 🎓 *Idealização, Engenharia Pedagógica e Docente SENAI-SP* | 🤖 *Pair Programming, Arquitetura de Software & Automação* |
 | [![GitHub](https://img.shields.io/badge/GitHub-guuhferiani-181717?style=flat&logo=github)](https://github.com/guuhferiani) | [![Antigravity](https://img.shields.io/badge/AI-Antigravity-4285F4?style=flat&logo=google)](https://deepmind.google/) |
