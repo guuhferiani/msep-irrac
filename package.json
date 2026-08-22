@@ -1,0 +1,21 @@
+{
+  "name": "gerador-pedagogico-senai",
+  "version": "1.0.0",
+  "description": "Gerador de Plano de Ensino MSEP e Planilha IRRAC para Docentes SENAI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "senai",
+    "msep",
+    "irrac",
+    "educacao",
+    "ia"
+  ],
+  "author": "Docente SENAI",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.6.0"
+  }
+}

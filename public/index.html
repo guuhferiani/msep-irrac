@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAI MSEP & IRRAC Suite | Gerador Pedagógico Multidisciplinar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top App Navigation -->
+    <header class="app-header no-print">
+        <div class="header-container">
+            <div class="brand">
+                <div class="senai-logo-badge">SENAI</div>
+                <div class="brand-text">
+                    <h1>MSEP & IRRAC Suite</h1>
+                    <span class="subtext">Engenharia Pedagógica Universal • Todas as Áreas Tecnológicas</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span id="server-status-text">Motor MSEP Online</span>
+                </div>
+                <button id="btn-quick-samples" class="btn btn-secondary btn-sm" title="Alternar Curso">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Biblioteca de Cursos
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+        <!-- Wizard Navigation Steps -->
+        <nav class="wizard-stepper no-print">
+            <button class="step-btn active" data-step="1" id="step-btn-1">
+                <span class="step-num">1</span>
+                <span class="step-info">
+                    <span class="step-title">Plano de Curso</span>
+                    <span class="step-desc">Upload ou Área Tecnológica</span>
+                </span>
+            </button>
+            <div class="step-divider"></div>
+            <button class="step-btn" data-step="2" id="step-btn-2">
+                <span class="step-num">2</span>
+                <span class="step-info">
+                    <span class="step-title">Dados da Turma</span>
+                    <span class="step-desc">Docente e Carga Horária</span>
+                </span>
+            </button>
+            <div class="step-divider"></div>
+            <button class="step-btn" data-step="3" id="step-btn-3">
+                <span class="step-num">3</span>
+                <span class="step-info">
+                    <span class="step-title">Plano de Ensino (MSEP)</span>
+                    <span class="step-desc">Editor Modular de SAs</span>
+                </span>
+            </button>
+            <div class="step-divider"></div>
+            <button class="step-btn" data-step="4" id="step-btn-4">
+                <span class="step-num">4</span>
+                <span class="step-info">
+                    <span class="step-title">Exportar & IRRAC</span>
+                    <span class="step-desc">XLSX, PDF e Fechamento</span>
+                </span>
+            </button>
+        </nav>
+
+        <!-- STEP 1: Plano de Curso Upload / Selection -->
+        <section class="step-view active" id="step-1">
+            <div class="card hero-card">
+                <div class="hero-header">
+                    <h2>Biblioteca de Cursos & Upload Multidisciplinar</h2>
+                    <p>Compatível com <strong>qualquer área do SENAI</strong> (TI, Eletroeletrônica, Automação, Mecânica, Refrigeração, etc.) com qualquer carga horária.</p>
+                </div>
+
+                <!-- Preloaded Course Cards by Technological Area -->
+                <div class="presets-section">
+                    <h3>Exemplos de Diferentes Áreas Tecnológicas:</h3>
+                    <div class="preset-grid">
+                        <!-- Preset 1: ChatGPT (TI) -->
+                        <div class="preset-card active-preset" data-preset="chatgpt" id="preset-chatgpt">
+                            <div class="preset-top">
+                                <span class="badge badge-area">TI - Software</span>
+                                <span class="badge badge-hours">48 Horas</span>
+                            </div>
+                            <h4>IA Generativa & ChatGPT</h4>
+                            <p>Criação de Chatbots NLP, Treinamento via API e Produtividade em Código.</p>
+                            <button class="btn btn-outline btn-sm">Carregar Curso</button>
+                        </div>
+
+                        <!-- Preset 2: Antigravity (TI) -->
+                        <div class="preset-card" data-preset="antigravity" id="preset-antigravity">
+                            <div class="preset-top">
+                                <span class="badge badge-area">TI - Software</span>
+                                <span class="badge badge-hours">40 Horas</span>
+                            </div>
+                            <h4>Google Antigravity & Vertex AI</h4>
+                            <p>Desenvolvimento com IA, Gemini, Imagen, Engenharia de Prompts e IA Responsável.</p>
+                            <button class="btn btn-outline btn-sm">Carregar Curso</button>
+                        </div>
+
+                        <!-- Preset 3: Comandos Elétricos (Eletroeletrônica) -->
+                        <div class="preset-card" data-preset="eletrica" id="preset-eletrica">
+                            <div class="preset-top">
+                                <span class="badge badge-area area-eletrica">Eletroeletrônica</span>
+                                <span class="badge badge-hours">80 Horas</span>
+                            </div>
+                            <h4>Comandos Elétricos Industriais</h4>
+                            <p>Partida de Motores, Inversores de Frequência, Soft-Starters e Diagnóstico de Falhas.</p>
+                            <button class="btn btn-outline btn-sm">Carregar Curso</button>
+                        </div>
+
+                        <!-- Preset 4: CLP (Automação) -->
+                        <div class="preset-card" data-preset="automacao" id="preset-automacao">
+                            <div class="preset-top">
+                                <span class="badge badge-area area-automacao">Automação</span>
+                                <span class="badge badge-hours">40 Horas</span>
+                            </div>
+                            <h4>Controladores Lógicos - CLP</h4>
+                            <p>Programação em Ladder, Módulos E/S Analógicos, Redes Industriais e Simulação.</p>
+                            <button class="btn btn-outline btn-sm">Carregar Curso</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Upload Box -->
+                <div class="upload-dropzone" id="dropzone">
+                    <input type="file" id="file-input" accept=".pdf,.json,.txt" style="display: none;">
+                    <div class="dropzone-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <h4>Arraste o PDF de qualquer Plano de Curso aqui</h4>
+                    <p>O sistema lê o documento, extrai o objetivo, carga horária e capacidades para gerar o MSEP</p>
+                    <button class="btn btn-secondary btn-sm" id="btn-browse-file">Procurar Arquivo do Computador</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: Turma & Metadata Configuration -->
+        <section class="step-view" id="step-2">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Identificação da Turma e Docente</h2>
+                        <p>Esses dados alimentarão o cabeçalho oficial do Plano de Ensino e os campos de cadastro do IRRAC.</p>
+                    </div>
+                    <span class="badge badge-outline" id="selected-course-badge">Curso Carregado</span>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="inp-course-name">Nome do Curso / Unidade Curricular</label>
+                        <input type="text" id="inp-course-name" class="form-control" placeholder="Ex: Comandos Elétricos e Acionamentos Industriais">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-unit-sigla">Sigla da Unidade (Nome da Aba)</label>
+                        <input type="text" id="inp-unit-sigla" class="form-control" placeholder="Ex: COMANDOS ou ChatGPT">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-workload">Carga Horária Total (Horas)</label>
+                        <input type="number" id="inp-workload" class="form-control" placeholder="Ex: 80" value="80">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-school">Unidade Escolar SENAI</label>
+                        <input type="text" id="inp-school" class="form-control" value="Escola SENAI &quot;Mariano Ferraz&quot;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-docente">Docente Principal</label>
+                        <input type="text" id="inp-docente" class="form-control" value="Gustavo da Silva Feriani">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-turma">Código da Turma</label>
+                        <input type="text" id="inp-turma" class="form-control" value="ELT-CMD 2026/2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inp-sem-ano">Semestre / Ano</label>
+                        <input type="text" id="inp-sem-ano" class="form-control" value="2º Sem/2026">
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn btn-secondary" id="btn-back-step-1">Voltar</button>
+                    <button class="btn btn-primary" id="btn-generate-msep-flow">
+                        Gerar Plano de Ensino MSEP Modular
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: MSEP Interactive Editor -->
+        <section class="step-view" id="step-3">
+            <div class="action-bar no-print">
+                <div class="action-bar-info">
+                    <h2 id="msep-view-title">Plano de Ensino MSEP Modular</h2>
+                    <div class="hours-balance-wrap">
+                        <span class="subtext">Distribuição de Carga Horária:</span>
+                        <div class="hours-badge" id="hours-balance-pill">
+                            <span id="hours-allocated">0</span> / <span id="hours-total">0</span> Horas
+                        </div>
+                    </div>
+                </div>
+                <div class="action-bar-buttons">
+                    <button class="btn btn-secondary btn-sm" id="btn-add-sa">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Adicionar Situação de Aprendizagem (SA)
+                    </button>
+                    <button class="btn btn-primary" id="btn-proceed-export">
+                        Avançar para Exportação
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Learning Situations Accordion Container -->
+            <div class="sa-container" id="sa-container">
+                <!-- Dynamically generated via JS -->
+            </div>
+        </section>
+
+        <!-- STEP 4: Export Center & IRRAC Simulator -->
+        <section class="step-view" id="step-4">
+            <div class="export-grid no-print">
+                <!-- Export Card 1: IRRAC XLSX -->
+                <div class="card export-card">
+                    <div class="export-icon xlsx-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <h3>1. Planilha IRRAC Oficial (.XLSX)</h3>
+                    <p>Compilação OpenXML com recálculo dinâmico de pesos (Total Críticos e Desejáveis) e todas as fórmulas integradas.</p>
+                    
+                    <div class="irrac-stats-preview">
+                        <div class="stat-pill"><span id="stat-crit-count">0</span> Críticos (C)</div>
+                        <div class="stat-pill"><span id="stat-desej-count">0</span> Desejáveis (D)</div>
+                        <div class="stat-pill"><span id="stat-total-count">0</span> Total</div>
+                    </div>
+
+                    <div class="card-buttons">
+                        <button class="btn btn-success btn-lg" id="btn-download-xlsx">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Baixar Planilha IRRAC (.xlsx)
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="btn-save-irrac-workspace">
+                            Salvar na pasta /IRRACs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Export Card 2: Plano de Ensino PDF -->
+                <div class="card export-card">
+                    <div class="export-icon pdf-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path><path d="M9 11h6"></path></svg>
+                    </div>
+                    <h3>2. Plano de Ensino MSEP (Imprimir / PDF)</h3>
+                    <p>Documento institucional completo formatado nas normas SENAI-SP com desafios, quadro de estratégias, rubricas e níveis de desempenho.</p>
+
+                    <div class="card-buttons">
+                        <button class="btn btn-primary btn-lg" id="btn-print-plano">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            Imprimir / Salvar em PDF
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="btn-toggle-plano-preview">
+                            Alternar Pré-visualização
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printable Official SENAI Document View -->
+            <div class="print-preview-container card" id="official-doc-view">
+                <div class="doc-controls no-print">
+                    <span>📄 Visualização do Documento Oficial SENAI</span>
+                    <span class="subtext">Formatado automaticamente para folhas A4</span>
+                </div>
+                <div class="official-senai-document" id="printable-doc-content">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast-notification" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

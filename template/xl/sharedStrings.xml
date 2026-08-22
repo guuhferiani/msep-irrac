@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="367" uniqueCount="100"><si><t>Resumo</t></si><si><t>Ordem</t></si><si><t>Alunos</t></si><si><t>Critérios Avaliados</t></si><si><t>Critérios Críticos</t></si><si><t>Critérios Desejáveis</t></si><si><t>Critérios críticos Atingidos</t></si><si><t>Critérios Desejáveis atingidos</t></si><si><t>Nota da Unidade</t></si><si><t>Media Final</t></si><si><t>HOME</t></si><si><t xml:space="preserve">INSTRUMENTO DE REGISTRO DOS </t></si><si><t>Média Final</t></si><si><t>ESCOLA SENAI MARIANO FERRAZ</t></si><si><t>RESULTADOS DA AVALIAÇÃO COM CRITÉRIOS</t></si><si><t>Curso:</t></si><si><t>Desenvolvimento de Aplicações com IA Generativa utilizando Google Antigravity</t></si><si><t>Plan 1</t></si><si><t>Turma</t></si><si><t>DESGAGR 2614IB</t></si><si><t>Sem/Ano:</t></si><si><t>2º Sem/2026</t></si><si><r><rPr><rFont val="Calibri"/><color theme="0"/><sz val="11.0"/></rPr><t xml:space="preserve">***Os </t></r><r><rPr><rFont val="Calibri"/><b/><color rgb="FFFFC000"/><sz val="11.0"/></rPr><t>botõe serão gerados</t></r><r><rPr><rFont val="Calibri"/><color theme="0"/><sz val="11.0"/></rPr><t xml:space="preserve"> de acordo com as unidades cadastradas***</t></r></si><si><t>Docente Principal:</t></si><si><t>Gustavo da Silva Feriani</t></si><si><t>INSTRUMENTO DE REGISTRO DOS RESULTADOS DA AVALIAÇÃO COM CRITÉRIOS</t></si><si><t>Unidades</t></si><si><t>Nome da Unidade</t></si><si><t>Nome ou Sigla da Unidade</t></si><si><t>Carga Horária</t></si><si><t>Cadastros</t></si><si><t>Consolidação</t></si><si><t>CURSO</t></si><si><t>UNIDADE CURRICULAR</t></si><si><t>CARGA HORÁRIA</t></si><si><t>DESGAGR</t></si><si><t>DOCENTE PRINCIPAL</t></si><si><t>DOCENTE AUXILIAR</t></si><si><t>TURMA</t></si><si><t>SEM / ANO</t></si><si><t>Capacidades básicas ou
+técnicas e socioemocionais</t></si><si><t>Critérios de Avaliação</t></si><si><t>ALUNOS</t></si><si><t>Cadastro de Alunos</t></si><si><t>Nº de Ordem</t></si><si><t>ALAN DA SILVA LIMA</t></si><si><t>EDILSON MOURA SANTOS</t></si><si><t>EVANDRO SPERANDIU GONCALVES</t></si><si><t>Diferenciar IA tradicional e IA generativa</t></si><si><t>Compara e identifica com clareza as finalidades, entradas e saídas da IA tradicional em relação à
+IA generativa.</t></si><si><t>C</t></si><si><t>A</t></si><si><t>GIOVANNY HENRIQUE dos SANTOS</t></si><si><t>GLEITON VASCONCELOS DE MELO</t></si><si><t>GUSTAVO BORGES</t></si><si><t>Relaciona as características de cada IA com
+exemplos práticos de uso cotidiano e de
+desenvolvimento.</t></si><si><t>D</t></si><si><t>LIZA JANE ALEXANDER FRANCA OLIVEIRA</t></si><si><t>NILDEVANIA VASCONCELOS de MELO SOUZA</t></si><si><t>Utilizar modelos de IA generativa pré-treinados</t></si><si><t>Opera o modelo de IA pré-treinado selecionando
+o formato adequado para obter a saída exata
+desejada (texto, tabela, JSON).</t></si><si><t>OSWALDO DA SILVA BARBOSA DOS SANTOS</t></si><si><t>Manual de Utilização</t></si><si><t>TIAGO DA SILVA FERREIRA NEVES</t></si><si><t>Testa variações na entrada de dados para
+observar e registrar as diferentes interpretações
+do modelo.</t></si><si><t>© Copyright - Welson de Lima Souza - Todos os direitos reservados.</t></si><si><t>Elaborar prompts estruturados</t></si><si><t>v. 2.0</t></si><si><t>Constrói comandos textuais (prompts) contendo
+as diretrizes completas de objetivo, contexto,
+restrições e formato solicitadas.</t></si><si><t>Aplica a técnica de exemplos (few-shot) para
+melhorar a assertividade e refinar as respostas
+geradas.</t></si><si><t>Demonstrar atenção a detalhes</t></si><si><t>Revisa minuciosamente os comandos inseridos e
+as respostas geradas para detectar e evitar
+alucinações de dados ou falhas de formatação.</t></si><si><t>Organiza as informações e os requisitos da tarefa
+de forma metódica antes de iniciar o projeto.</t></si><si><t>Demonstrar raciocínio lógico</t></si><si><t>Identifica e estabelece relações de causa e efeito
+precisas entre a estrutura formulada no prompt e
+o resultado devolvido pela IA.</t></si><si><t>Propõe sequências de pensamento alternativas e
+lógicas na resolução do problema inicial de
+comunicação da startup.</t></si><si><t>Utilizar ferramenta Antigravity</t></si><si><t>Gera as funções, os componentes e estrutura as
+pastas e camadas do projeto fazendo o uso
+funcional da ferramenta Google Antigravity.</t></si><si><t>Otimiza o código-fonte gerado, adaptando-o
+eficientemente às dependências específicas
+exigidas pelo protótipo.</t></si><si><t>Soluciona falhas sistêmicas e erros de compilação
+durante a geração de código de forma
+estruturada e sequencial.</t></si><si><t>Explica a lógica computacional do fluxo de dados e
+de chamadas das APIs com objetividade.</t></si><si><t>Demonstrar visão sistêmica</t></si><si><t>Constrói e articula o projeto compreendendo a
+interdependência técnica entre o front-end, backend e as requisições de Inteligência Artificial.</t></si><si><t>Antecipa impactos e possíveis gargalos de
+integração tecnológica no planejamento inicial do
+software.</t></si><si><t>Validar protótipo funcional</t></si><si><t>Aplica baterias de testes assertivas para aferir a
+coerência e aderência aos requisitos, detectando
+erros, vieses e alucinações.</t></si><si><t>Elabora e formata um Relatório Técnico de
+Parecer completo, incluindo matriz de correção e
+checklist de mitigação de riscos.</t></si><si><t>Avalia com precisão como falhas algorítmicas de
+viés impactam o tecido social, o mercado e a
+reputação global da empresa.</t></si><si><t>Propõe soluções mitigadoras considerando
+simultaneamente a arquitetura de software, o uso
+de dados e a segurança corporativa.</t></si><si><t>Demonstrar responsabilidade</t></si><si><t>Pauta a validação de todo o protótipo seguindo
+estritamente as diretrizes éticas de
+desenvolvimento e uso responsável da IA.</t></si><si><t>Cumpre rigorosamente os prazos da crise
+simulada e motiva o grupo na entrega das
+investigações e relatórios finais.</t></si><si><t>Demonstrar tolerância ao estresse</t></si><si><t>Mantém o equilíbrio emocional, a estabilidade e
+o foco técnico na resolução do problema diante
+do cenário polêmico simulado.</t></si><si><t>Age como facilitador para os colegas, apaziguando
+conflitos e ansiedades provenientes da pressão do
+trabalho de contingência.</t></si><si><t>Legenda:</t></si><si><t>·       A = Atingiu</t></si><si><t>·       N = Não atingiu</t></si><si><t>·       Negrito = Crítico</t></si><si><t>·       Sem negrito = Desejável</t></si></sst>
