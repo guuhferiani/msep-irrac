@@ -68,40 +68,6 @@ graph LR
 
 ---
 
-## 💻 Como Executar Localmente
-
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/guuhferiani/msep-irrac-suite.git
-   cd msep-irrac-suite
-   ```
-
-2. **Instale as dependências:**
-   ```bash
-   npm install
-   ```
-
-3. **Inicie o servidor de desenvolvimento:**
-   ```bash
-   npm start
-   ```
-
-4. **Acesse no navegador:**
-   ```
-   http://localhost:3000
-   ```
-
----
-
-## ☁️ Deploy na Nuvem (Vercel)
-
-O projeto conta com arquivo de configuração `vercel.json` pré-configurado:
-1. Conecte o repositório `msep-irrac-suite` na sua conta da **[Vercel](https://vercel.com/)**.
-2. Clique em **Deploy** (nenhuma variável de ambiente é necessária).
-3. A aplicação estará disponível em seu subdomínio `.vercel.app` instantaneamente.
-
----
-
 ## 👨‍💻 Autores e Créditos
 
 <div align="center">
