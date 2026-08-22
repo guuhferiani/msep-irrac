@@ -18,7 +18,9 @@ let currentMsepPlan = null;
 document.addEventListener('DOMContentLoaded', async () => {
     initEventListeners();
     await fetchSamples();
-    loadPresetCourse('chatgpt');
+    // Select default preset without jumping out of Step 1
+    selectPresetCourse('chatgpt', false);
+    goToStep(1);
 });
 
 // Fetch Preloaded Samples from Backend
@@ -43,12 +45,19 @@ function initEventListeners() {
         });
     });
 
-    // Preset cards
+    // Preset cards selection
     document.querySelectorAll('.preset-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
             const presetKey = card.dataset.preset;
-            loadPresetCourse(presetKey);
+            // If clicked on "Selecionar Este Curso" button, advance directly to Step 2
+            const isButton = e.target.closest('.btn-preset-select');
+            selectPresetCourse(presetKey, !!isButton);
         });
+    });
+
+    // Step 1 Continue Button
+    document.getElementById('btn-step1-continue').addEventListener('click', () => {
+        goToStep(2);
     });
 
     // Dropzone & File Upload
@@ -100,7 +109,6 @@ function initEventListeners() {
 
     // Export buttons
     document.getElementById('btn-download-xlsx').addEventListener('click', handleDownloadIRRAC);
-    document.getElementById('btn-save-irrac-workspace').addEventListener('click', handleSaveIRRACToWorkspace);
     document.getElementById('btn-print-plano').addEventListener('click', () => window.print());
     document.getElementById('btn-toggle-plano-preview').addEventListener('click', () => {
         const docView = document.getElementById('official-doc-view');
@@ -136,8 +144,8 @@ function goToStep(stepNumber) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Load Preset Course
-function loadPresetCourse(presetKey) {
+// Select Preset Course (with option to advance to step 2 or stay on step 1)
+function selectPresetCourse(presetKey, advanceToStep2 = false) {
     document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
     const targetCard = document.getElementById(`preset-${presetKey}`);
     if (targetCard) targetCard.classList.add('active-preset');
@@ -156,9 +164,17 @@ function loadPresetCourse(presetKey) {
     document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '2º Sem/2026';
 
     document.getElementById('selected-course-badge').textContent = `${currentCourseData.area || 'Curso'}: ${currentCourseData.unitSigla}`;
+    
+    // Update Step 1 Footer Text
+    const step1Label = document.getElementById('step1-selected-name');
+    if (step1Label) {
+        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
+    }
 
-    showToast(`Curso "${currentCourseData.courseName.substring(0, 30)}..." carregado!`);
-    goToStep(2);
+    if (advanceToStep2) {
+        showToast(`Curso "${currentCourseData.courseName.substring(0, 30)}..." selecionado!`);
+        goToStep(2);
+    }
 }
 
 // Handle Custom File Upload
@@ -167,13 +183,13 @@ function handleFileUpload(file) {
     showToast(`Arquivo "${file.name}" carregado. Analisando matriz curricular...`);
 
     if (fileName.includes('chatgpt')) {
-        loadPresetCourse('chatgpt');
+        selectPresetCourse('chatgpt', true);
     } else if (fileName.includes('antigravity')) {
-        loadPresetCourse('antigravity');
+        selectPresetCourse('antigravity', true);
     } else if (fileName.includes('eletri') || fileName.includes('comando')) {
-        loadPresetCourse('eletrica');
+        selectPresetCourse('eletrica', true);
     } else if (fileName.includes('clp') || fileName.includes('automa')) {
-        loadPresetCourse('automacao');
+        selectPresetCourse('automacao', true);
     } else {
         const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
         currentCourseData = {
@@ -484,7 +500,7 @@ function syncMsepPlanFromUI() {
             c.row = globalRowCounter++;
         });
 
-        globalRowCounter++; // blank row separator between SAs in sheet
+        globalRowCounter++;
     });
 }
 
@@ -706,55 +722,6 @@ async function handleDownloadIRRAC() {
     } catch (err) {
         console.error('Download error:', err);
         showToast('Erro ao baixar planilha. Tente novamente.');
-    }
-}
-
-// Save IRRAC directly into the workspace folder
-async function handleSaveIRRACToWorkspace() {
-    syncMsepPlanFromUI();
-    showToast('Salvando na pasta /IRRACs...');
-
-    const payload = {
-        courseName: currentMsepPlan.curso,
-        unitSigla: currentMsepPlan.sigla,
-        workload: currentMsepPlan.cargaHoraria,
-        turma: currentMsepPlan.turma,
-        semAno: currentMsepPlan.semAno,
-        docente: currentMsepPlan.docente,
-        escola: currentMsepPlan.escola,
-        situacoes: currentMsepPlan.situacoes
-    };
-
-    try {
-        const response = await fetch('/api/export-irrac', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-            const arrayBuffer = await response.arrayBuffer();
-            const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-            
-            const saveRes = await fetch('/api/save-to-workspace', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'irrac',
-                    fileName: `IRRAC - ${currentMsepPlan.sigla}.xlsx`,
-                    content: base64,
-                    isBinary: true
-                })
-            });
-
-            if (saveRes.ok) {
-                const resData = await saveRes.json();
-                showToast(`Salvo em: ${resData.path}`);
-            }
-        }
-    } catch (err) {
-        console.error('Save error:', err);
-        showToast('Erro ao salvar no workspace.');
     }
 }
 
