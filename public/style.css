@@ -664,6 +664,63 @@ body {
     background: var(--bg-surface-subtle);
 }
 
+/* Modern Classification Selector (Crítico / Desejável) */
+.crit-tipo-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 11px 11px;
+    padding: 0.42rem 1.85rem 0.42rem 0.85rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left !important;
+    width: 100%;
+    max-width: 145px;
+    margin: 0 auto;
+    display: inline-block;
+    border: 1.5px solid var(--border-strong);
+}
+
+.crit-tipo-select.tipo-c {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.crit-tipo-select.tipo-c:hover, .crit-tipo-select.tipo-c:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    background-color: #fee2e2;
+    outline: none;
+}
+
+.crit-tipo-select.tipo-d {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+.crit-tipo-select.tipo-d:hover, .crit-tipo-select.tipo-d:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #dbeafe;
+    outline: none;
+}
+
+.crit-tipo-select option {
+    background-color: #ffffff;
+    color: #0f172a;
+    font-weight: 600;
+    padding: 0.6rem;
+}
+
 /* ==========================================================================
    Export Center (Step 4)
    ========================================================================== */
