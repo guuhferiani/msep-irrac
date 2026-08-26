@@ -463,9 +463,9 @@ function renderMSEPViewer() {
                                     <input type="text" class="form-control form-control-sm crit-text-input" data-sa-idx="${saIdx}" data-c-idx="${cIdx}" value="${c.crit}" style="${c.tipo === 'C' ? 'font-weight: 700;' : ''}">
                                 </td>
                                 <td style="text-align: center;">
-                                    <select class="crit-tipo-select ${c.tipo === 'C' ? 'tipo-c' : 'tipo-d'}" data-sa-idx="${saIdx}" data-c-idx="${cIdx}">
-                                        <option value="C" ${c.tipo === 'C' ? 'selected' : ''}>🔴 Crítico (C)</option>
-                                        <option value="D" ${c.tipo === 'D' ? 'selected' : ''}>🔵 Desejável (D)</option>
+                                    <select class="form-control form-control-sm crit-tipo-select" data-sa-idx="${saIdx}" data-c-idx="${cIdx}">
+                                        <option value="C" ${c.tipo === 'C' ? 'selected' : ''}>Crítico (C)</option>
+                                        <option value="D" ${c.tipo === 'D' ? 'selected' : ''}>Desejável (D)</option>
                                     </select>
                                 </td>
                                 <td style="text-align: center;">
@@ -485,29 +485,17 @@ function renderMSEPViewer() {
 
 // Attach Event Listeners to Dynamically Rendered MSEP Elements
 function attachDynamicMSEPHandlers() {
-    const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input'];
+    const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input', '.crit-tipo-select'];
     liveSelectors.forEach(sel => {
         document.querySelectorAll(sel).forEach(inp => {
             inp.addEventListener('input', () => {
                 syncMsepPlanFromUI();
                 saveToLocalStorage();
             });
-        });
-    });
-
-    // Classification Type Dropdowns Dynamic Color Toggle
-    document.querySelectorAll('.crit-tipo-select').forEach(sel => {
-        sel.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val === 'C') {
-                e.target.classList.add('tipo-c');
-                e.target.classList.remove('tipo-d');
-            } else {
-                e.target.classList.add('tipo-d');
-                e.target.classList.remove('tipo-c');
-            }
-            syncMsepPlanFromUI();
-            saveToLocalStorage();
+            inp.addEventListener('change', () => {
+                syncMsepPlanFromUI();
+                saveToLocalStorage();
+            });
         });
     });
 
