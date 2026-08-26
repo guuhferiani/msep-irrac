@@ -403,9 +403,9 @@ function renderMSEPViewer() {
                     <input type="text" class="form-control sa-title-input" data-sa-idx="${saIdx}" value="${sa.titulo}" style="font-weight: 700; font-size: 1.05rem;">
                 </div>
                 <div class="sa-header-controls">
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <input type="number" class="form-control form-control-sm sa-hours-input" data-sa-idx="${saIdx}" value="${sa.aulas}" style="width: 70px; text-align: center;" title="Horas desta SA">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Aulas</span>
+                    <div class="sa-hours-box">
+                        <input type="number" class="form-control form-control-sm sa-hours-input" data-sa-idx="${saIdx}" value="${sa.aulas}" style="width: 75px; text-align: center; font-weight: 700;" title="Horas desta SA">
+                        <span class="sa-hours-label">Aulas</span>
                     </div>
                     <button class="btn btn-danger btn-xs btn-delete-sa" data-sa-idx="${saIdx}" title="Excluir esta Situação de Aprendizagem">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>

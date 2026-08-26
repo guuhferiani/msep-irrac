@@ -560,16 +560,23 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1.15rem;
+    padding-bottom: 1.25rem;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 1.5rem;
+    gap: 2.25rem;
 }
 
 .sa-title-wrap {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    flex-grow: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sa-title-input {
+    flex: 1;
+    width: 100%;
 }
 
 .sa-badge {
@@ -577,14 +584,28 @@ body {
     color: #ffffff;
     font-weight: 800;
     font-size: 0.78rem;
-    padding: 0.35rem 0.75rem;
+    padding: 0.4rem 0.8rem;
     border-radius: var(--radius-sm);
+    flex-shrink: 0;
 }
 
 .sa-header-controls {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1.25rem;
+    flex-shrink: 0;
+}
+
+.sa-hours-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sa-hours-label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-muted);
 }
 
 .sa-grid {
