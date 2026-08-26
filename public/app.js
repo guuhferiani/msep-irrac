@@ -3,7 +3,7 @@
 // Workflow: From Scratch (File Upload / Direct Input)
 // ==========================================================================
 
-const STORAGE_KEY = 'docente_senai_state_v2';
+const STORAGE_KEY = 'docente_senai_state_v3';
 
 let currentStep = 1;
 let currentCourseData = {
@@ -14,7 +14,7 @@ let currentCourseData = {
     workload: "",
     turma: "",
     semAno: "",
-    docente: "Gustavo Feriani",
+    docente: "",
     escola: 'Escola SENAI "Mariano Ferraz"',
     fileName: null
 };
@@ -179,7 +179,7 @@ function resetFormToBlank() {
         workload: "",
         turma: "",
         semAno: "",
-        docente: "Gustavo Feriani",
+        docente: "",
         escola: 'Escola SENAI "Mariano Ferraz"',
         fileName: null
     };
@@ -193,8 +193,8 @@ function populateStep2Inputs() {
     document.getElementById('inp-course-name').value = currentCourseData.courseName || '';
     document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla || '';
     document.getElementById('inp-workload').value = currentCourseData.workload || '';
-    document.getElementById('inp-school').value = currentCourseData.escola || '';
-    document.getElementById('inp-docente').value = currentCourseData.docente || 'Gustavo Feriani';
+    document.getElementById('inp-school').value = currentCourseData.escola || 'Escola SENAI "Mariano Ferraz"';
+    document.getElementById('inp-docente').value = currentCourseData.docente || '';
     document.getElementById('inp-turma').value = currentCourseData.turma || '';
     document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '';
 
@@ -258,7 +258,7 @@ function handleFileUpload(file) {
     currentCourseData.workload = "";
     currentCourseData.turma = "";
     currentCourseData.semAno = "";
-    currentCourseData.docente = "Gustavo Feriani";
+    currentCourseData.docente = "";
     currentCourseData.escola = 'Escola SENAI "Mariano Ferraz"';
     
     populateStep2Inputs();
@@ -331,7 +331,7 @@ async function handleGenerateMSEP() {
         currentCourseData.escola = 'Escola SENAI "Mariano Ferraz"';
     }
     if (!currentCourseData.docente) {
-        currentCourseData.docente = 'Gustavo Feriani';
+        currentCourseData.docente = 'Docente Responsável';
     }
 
     showToast('Gerando Situações de Aprendizagem MSEP Modular...');
