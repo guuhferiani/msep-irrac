@@ -1,4 +1,4 @@
-# 🏛️ Docente SENAI (MSEP & IRRAC Suite)
+# 🏛️ Docente SENAI (Plano de Curso, MSEP & IRRAC)
 
 <div align="center">
 

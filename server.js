@@ -53,7 +53,7 @@ const server = http.createServer((req, res) => {
 if (require.main === module) {
     server.listen(PORT, () => {
         console.log(`\n======================================================`);
-        console.log(`🚀 SENAI MSEP & IRRAC SUITE ONLINE (PORTA ${PORT})`);
+        console.log(`🚀 DOCENTE SENAI ONLINE (PORTA ${PORT})`);
         console.log(`🌐 Acesse no navegador: http://localhost:${PORT}`);
         console.log(`======================================================\n`);
     });
