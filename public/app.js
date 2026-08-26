@@ -465,14 +465,25 @@ function attachDynamicMSEPHandlers() {
                 showToast('O Plano de Ensino precisa ter pelo menos 1 Situação de Aprendizagem.');
                 return;
             }
-            syncMsepPlanFromUI();
-            currentMsepPlan.situacoes.splice(saIdx, 1);
-            currentMsepPlan.situacoes.forEach((sa, i) => {
-                sa.numero = String(i + 1).padStart(2, '0');
+            const sa = currentMsepPlan.situacoes[saIdx];
+            openModal({
+                title: `Excluir Situação de Aprendizagem ${sa.numero}?`,
+                desc: `Tem certeza que deseja remover "${sa.titulo}" e seus critérios de avaliação?`,
+                confirmText: 'Excluir SA',
+                cancelText: 'Cancelar',
+                iconType: 'danger',
+                isDanger: true,
+                onConfirm: () => {
+                    syncMsepPlanFromUI();
+                    currentMsepPlan.situacoes.splice(saIdx, 1);
+                    currentMsepPlan.situacoes.forEach((item, i) => {
+                        item.numero = String(i + 1).padStart(2, '0');
+                    });
+                    saveToLocalStorage();
+                    renderMSEPViewer();
+                    showToast('Situação de Aprendizagem removida.');
+                }
             });
-            saveToLocalStorage();
-            renderMSEPViewer();
-            showToast('Situação de Aprendizagem removida.');
         });
     });
 
@@ -836,14 +847,90 @@ function loadFromLocalStorage() {
 }
 
 function handleResetPlan() {
-    if (confirm('Deseja iniciar um novo planejamento do zero? O rascunho atual será limpo.')) {
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-        } catch (e) {}
-        resetFormToBlank();
-        goToStep(1, false);
-        showToast('Novo planejamento iniciado do zero.');
+    openModal({
+        title: 'Iniciar Novo Planejamento?',
+        desc: 'Todas as alterações, Situações de Aprendizagem e rascunhos salvos no navegador serão limpos para você começar um novo curso do zero.',
+        confirmText: 'Sim, Iniciar do Zero',
+        cancelText: 'Cancelar',
+        iconType: 'primary',
+        isDanger: false,
+        onConfirm: () => {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+            resetFormToBlank();
+            goToStep(1, false);
+            showToast('Novo planejamento iniciado do zero.');
+        }
+    });
+}
+
+// Modern Modal Dialog Helper
+function openModal({
+    title = 'Confirmação',
+    desc = 'Tem certeza que deseja prosseguir?',
+    iconType = 'primary', // 'primary', 'danger', 'warning'
+    confirmText = 'Confirmar',
+    cancelText = 'Cancelar',
+    isDanger = false,
+    onConfirm = () => {}
+}) {
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const descEl = document.getElementById('modal-desc');
+    const iconBadge = document.getElementById('modal-icon-badge');
+    const btnConfirm = document.getElementById('modal-btn-confirm');
+    const btnCancel = document.getElementById('modal-btn-cancel');
+
+    if (!overlay) return;
+
+    titleEl.textContent = title;
+    descEl.textContent = desc;
+    btnConfirm.textContent = confirmText;
+    btnCancel.textContent = cancelText;
+
+    iconBadge.className = `modal-icon-badge ${iconType}`;
+
+    if (isDanger) {
+        btnConfirm.className = 'btn btn-danger';
+    } else {
+        btnConfirm.className = 'btn btn-primary';
     }
+
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+
+    const closeModal = () => {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 200);
+        btnConfirm.onclick = null;
+        btnCancel.onclick = null;
+        document.removeEventListener('keydown', handleKey);
+    };
+
+    const handleKey = (e) => {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Enter') {
+            closeModal();
+            onConfirm();
+        }
+    };
+
+    btnCancel.onclick = closeModal;
+    btnConfirm.onclick = () => {
+        closeModal();
+        onConfirm();
+    };
+
+    overlay.onclick = (e) => {
+        if (e.target === overlay) closeModal();
+    };
+
+    document.addEventListener('keydown', handleKey);
 }
 
 function setStorageStatus(text, isTemporaryHighlight = false) {

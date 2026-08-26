@@ -271,6 +271,29 @@
         </section>
     </main>
 
+    <!-- Modern Modal Dialog -->
+    <div id="modal-overlay" class="modal-backdrop" style="display: none;">
+        <div class="modal-container" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div class="modal-icon-badge" id="modal-icon-badge">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="modal-title-wrap">
+                    <h3 id="modal-title">Iniciar Novo Planejamento?</h3>
+                    <p id="modal-desc">Todas as alterações e rascunhos salvos no navegador serão limpos para começar do zero.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="modal-btn-cancel">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="modal-btn-confirm">Sim, Iniciar Novo</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast-notification" class="toast"></div>
 
