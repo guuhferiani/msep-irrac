@@ -1,44 +1,78 @@
 /* ==========================================================================
-   SENAI MSEP & IRRAC SUITE - DESIGN SYSTEM (UNIVERSAL & MODULAR V2)
+   SENAI MSEP & IRRAC SUITE - DESIGN SYSTEM
+   Theme: Institutional Clean (Off-White, White, Slate Gray & Black)
+   Layout: Wide-Screen Fluid (High Horizontal Workspace Utilization)
    ========================================================================== */
 
 :root {
-    --bg-main: #0b0f19;
-    --bg-card: rgba(18, 24, 38, 0.75);
-    --bg-card-hover: rgba(28, 36, 56, 0.85);
-    --bg-surface: #131b2e;
-    --bg-input: #1a233a;
-    
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-highlight: rgba(225, 29, 72, 0.4);
-    
-    --primary: #e11d48;
-    --primary-glow: rgba(225, 29, 72, 0.25);
-    --primary-hover: #be123c;
-    
-    --accent: #3b82f6;
-    --accent-glow: rgba(59, 130, 246, 0.2);
-    
-    --success: #10b981;
-    --success-glow: rgba(16, 185, 129, 0.2);
-    
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --text-subtle: #64748b;
-    
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-    
-    --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Backgrounds: Off-White to Pure White */
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-hover: #ffffff;
+    --bg-surface: #f1f5f9;
+    --bg-surface-subtle: #f8fafc;
+    --bg-input: #ffffff;
+
+    /* Borders: Crisp Slate Grays */
+    --border-color: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    --border-strong: #cbd5e1;
+    --border-highlight: #0f172a;
+
+    /* Brand & Accent Colors */
+    --primary: #e30613;          /* SENAI Official Red */
+    --primary-hover: #c0040f;
+    --primary-light: #fef2f2;
+    --primary-border: #fecaca;
+
+    --dark-main: #0f172a;         /* Deep Charcoal / Black */
+    --dark-hover: #1e293b;
+
+    --accent: #2563eb;          /* Clean Royal Blue */
+    --accent-light: #eff6ff;
+    --accent-border: #bfdbfe;
+
+    --success: #059669;         /* Clean Emerald */
+    --success-light: #ecfdf5;
+    --success-border: #a7f3d0;
+
+    --warning: #d97706;         /* Amber */
+    --warning-light: #fffbeb;
+    --warning-border: #fde68a;
+
+    --danger: #dc2626;          /* Red */
+    --danger-light: #fef2f2;
+    --danger-border: #fecaca;
+
+    /* Typography Hierarchy */
+    --text-main: #0f172a;        /* Black / Dark Slate */
+    --text-body: #334155;        /* Neutral Slate */
+    --text-muted: #64748b;       /* Muted Gray */
+    --text-subtle: #94a3b8;      /* Light Gray */
+
+    /* Geometry & Spacing */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+
+    /* Natural & Subtle Box Shadows (No Artificial Neon) */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ==========================================================================
+   Base & Reset
+   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -46,33 +80,31 @@
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-main);
-    color: var(--text-main);
+    color: var(--text-body);
     min-height: 100vh;
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
-    background-attachment: fixed;
-    line-height: 1.5;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   Header & Brand
+   Header & Brand Navigation (Wide Layout)
    ========================================================================== */
 .app-header {
-    background: rgba(11, 15, 25, 0.8);
-    backdrop-filter: blur(12px);
+    background: #ffffff;
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: var(--shadow-xs);
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 1560px;
     margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 0.85rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -81,48 +113,53 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .senai-logo-badge {
-    background: linear-gradient(135deg, #e11d48, #9f1239);
-    color: #fff;
+    background: var(--primary);
+    color: #ffffff;
     font-weight: 900;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     letter-spacing: 2px;
-    padding: 0.35rem 0.85rem;
+    padding: 0.4rem 0.95rem;
     border-radius: var(--radius-sm);
-    box-shadow: 0 4px 15px var(--primary-glow);
+    box-shadow: 0 2px 4px rgba(227, 6, 19, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .brand-text h1 {
     font-size: 1.15rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-main);
+    letter-spacing: -0.01em;
 }
 
 .brand-text .subtext {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
+    font-weight: 500;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .status-pill {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: var(--success-light);
+    border: 1px solid var(--success-border);
     padding: 0.35rem 0.85rem;
     border-radius: 9999px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--success);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .status-dot {
@@ -130,35 +167,30 @@ body {
     height: 8px;
     border-radius: 50%;
     background: var(--success);
-    box-shadow: 0 0 10px var(--success);
-    animation: pulse-dot 2s infinite;
-}
-
-@keyframes pulse-dot {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.7; }
 }
 
 /* ==========================================================================
-   Main Layout & Stepper
+   Main Layout (Wide-Screen Space Utilization)
    ========================================================================== */
 .main-content {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    max-width: 1560px;
+    margin: 1.75rem auto 3rem auto;
+    padding: 0 2rem;
 }
 
+/* ==========================================================================
+   Wizard Stepper (Clean & Professional)
+   ========================================================================== */
 .wizard-stepper {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--bg-card);
-    backdrop-filter: blur(12px);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 0.75rem 1rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow-card);
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .step-btn {
@@ -168,7 +200,7 @@ body {
     gap: 0.85rem;
     background: transparent;
     border: none;
-    padding: 0.65rem 1rem;
+    padding: 0.75rem 1.15rem;
     border-radius: var(--radius-md);
     cursor: pointer;
     text-align: left;
@@ -176,33 +208,33 @@ body {
 }
 
 .step-btn:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-surface);
 }
 
 .step-btn.active {
-    background: rgba(225, 29, 72, 0.12);
-    border: 1px solid rgba(225, 29, 72, 0.3);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
 }
 
 .step-num {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--bg-surface);
+    background: #ffffff;
     color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 0.85rem;
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
 }
 
 .step-btn.active .step-num {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-    box-shadow: 0 0 12px var(--primary-glow);
+    background: var(--dark-main);
+    color: #ffffff;
+    border-color: var(--dark-main);
 }
 
 .step-info {
@@ -211,21 +243,22 @@ body {
 }
 
 .step-title {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 700;
     color: var(--text-main);
 }
 
 .step-desc {
-    font-size: 0.72rem;
-    color: var(--text-subtle);
+    font-size: 0.74rem;
+    color: var(--text-muted);
 }
 
 .step-divider {
     width: 24px;
     height: 1px;
     background: var(--border-color);
-    margin: 0 0.5rem;
+    margin: 0 0.25rem;
+    flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -233,7 +266,7 @@ body {
    ========================================================================== */
 .step-view {
     display: none;
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.25s ease;
 }
 
 .step-view.active {
@@ -241,16 +274,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .card {
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
-    padding: 2rem;
+    padding: 2.25rem;
     box-shadow: var(--shadow-card);
 }
 
@@ -258,66 +290,70 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
     padding-bottom: 1.25rem;
     border-bottom: 1px solid var(--border-color);
 }
 
-.card-header h2 {
-    font-size: 1.35rem;
-    font-weight: 700;
+.card-header h2, .hero-header h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
 }
 
 .card-header p, .hero-header p {
     color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
+    font-size: 0.92rem;
+    margin-top: 0.35rem;
 }
 
 /* ==========================================================================
-   Preset Cards (Step 1)
+   Preset Cards (Step 1: 4-Column Wide Grid)
    ========================================================================== */
 .presets-section {
     margin: 1.75rem 0;
 }
 
 .presets-section h3 {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-bottom: 1.15rem;
 }
 
 .preset-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.35rem;
 }
 
 .preset-card {
-    background: var(--bg-surface);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    padding: 1.4rem;
     cursor: pointer;
     transition: var(--transition-smooth);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.85rem;
     position: relative;
+    box-shadow: var(--shadow-xs);
 }
 
 .preset-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--border-highlight);
-    box-shadow: 0 12px 28px rgba(225, 29, 72, 0.15);
+    transform: translateY(-2px);
+    border-color: var(--dark-main);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .preset-card.active-preset {
-    border-color: var(--primary);
-    background: linear-gradient(180deg, rgba(225, 29, 72, 0.08) 0%, rgba(19, 27, 46, 0.95) 100%);
-    box-shadow: 0 0 20px rgba(225, 29, 72, 0.2);
+    border: 2px solid var(--dark-main);
+    background: #ffffff;
+    box-shadow: var(--shadow-md);
 }
 
 .preset-top {
@@ -327,15 +363,16 @@ body {
 }
 
 .preset-card h4 {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-top: 0.2rem;
+    color: var(--text-main);
+    margin-top: 0.15rem;
 }
 
 .preset-card p {
-    font-size: 0.8rem;
+    font-size: 0.86rem;
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: 1.5;
     flex-grow: 1;
 }
 
@@ -343,44 +380,45 @@ body {
    Dropzone (Step 1)
    ========================================================================== */
 .upload-dropzone {
-    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border: 2px dashed var(--border-strong);
     border-radius: var(--radius-lg);
-    padding: 2.5rem 1.5rem;
+    padding: 2.75rem 2rem;
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--bg-surface-subtle);
     cursor: pointer;
     transition: var(--transition-fast);
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
 }
 
 .upload-dropzone:hover, .upload-dropzone.dragover {
-    border-color: var(--accent);
-    background: rgba(59, 130, 246, 0.05);
+    border-color: var(--dark-main);
+    background: #ffffff;
 }
 
 .dropzone-icon {
-    color: var(--accent);
+    color: var(--text-muted);
     margin-bottom: 0.75rem;
 }
 
 .upload-dropzone h4 {
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
 .upload-dropzone p {
     color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.15rem;
 }
 
 /* ==========================================================================
-   Forms & Inputs (Step 2)
+   Forms & Inputs (Step 2: Wide Ergonomic Form)
    ========================================================================== */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 
 .form-group.full-width {
@@ -389,42 +427,47 @@ body {
 
 .form-group label {
     display: block;
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
+    color: var(--text-main);
+    margin-bottom: 0.45rem;
 }
 
 .form-control {
     width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background: #ffffff;
+    border: 1px solid var(--border-strong);
     color: var(--text-main);
     padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-family: inherit;
     transition: var(--transition-fast);
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-glow);
+    border-color: var(--dark-main);
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
 }
 
 .form-control-sm {
     padding: 0.45rem 0.65rem;
-    font-size: 0.82rem;
+    font-size: 0.84rem;
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2rem;
+    margin-top: 2.25rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
+}
+
+.selected-course-highlight {
+    color: var(--dark-main);
+    font-weight: 800;
 }
 
 /* ==========================================================================
@@ -434,35 +477,41 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.75rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .action-bar h2 {
     font-size: 1.35rem;
-    font-weight: 700;
+    font-weight: 800;
+    color: var(--text-main);
 }
 
 .hours-balance-wrap {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: 0.25rem;
+    margin-top: 0.35rem;
 }
 
 .hours-badge {
-    background: rgba(16, 185, 129, 0.15);
+    background: var(--success-light);
     color: var(--success);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    border: 1px solid var(--success-border);
     font-size: 0.82rem;
     font-weight: 700;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 9999px;
 }
 
 .hours-badge.mismatch {
-    background: rgba(245, 158, 11, 0.15);
+    background: var(--warning-light);
     color: var(--warning);
-    border-color: rgba(245, 158, 11, 0.3);
+    border-color: var(--warning-border);
 }
 
 .action-bar-buttons {
@@ -471,36 +520,40 @@ body {
 }
 
 .sa-card {
-    background: var(--bg-card);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
-    padding: 1.75rem;
-    margin-bottom: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 1.75rem;
     box-shadow: var(--shadow-card);
     transition: var(--transition-fast);
+}
+
+.sa-card:hover {
+    box-shadow: var(--shadow-md);
 }
 
 .sa-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1rem;
+    padding-bottom: 1.15rem;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .sa-title-wrap {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.85rem;
     flex-grow: 1;
 }
 
 .sa-badge {
-    background: var(--primary);
-    color: #fff;
+    background: var(--dark-main);
+    color: #ffffff;
     font-weight: 800;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     padding: 0.35rem 0.75rem;
     border-radius: var(--radius-sm);
 }
@@ -508,66 +561,84 @@ body {
 .sa-header-controls {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.75rem;
 }
 
 .sa-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    margin-bottom: 1.25rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .sa-section-block {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 1.2rem;
+    padding: 1.35rem;
 }
 
 .sa-section-block h4 {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
+    color: var(--text-main);
+    margin-bottom: 0.65rem;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
 }
 
 .sa-section-block textarea, .sa-section-block input {
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
+    background: #ffffff;
+    border: 1px solid var(--border-strong);
     color: var(--text-main);
-    padding: 0.6rem;
+    padding: 0.7rem 0.85rem;
     border-radius: var(--radius-sm);
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     resize: vertical;
+    transition: var(--transition-fast);
+}
+
+.sa-section-block textarea:focus, .sa-section-block input:focus {
+    outline: none;
+    border-color: var(--dark-main);
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
 }
 
 .criteria-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-}
-
-.criteria-table th, .criteria-table td {
-    padding: 0.6rem 0.85rem;
-    text-align: left;
+    margin-top: 0.85rem;
+    font-size: 0.88rem;
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    overflow: hidden;
     border: 1px solid var(--border-color);
 }
 
+.criteria-table th, .criteria-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
 .criteria-table th {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-surface);
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.criteria-table tr:last-child td {
+    border-bottom: none;
 }
 
 .criteria-table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-surface-subtle);
 }
 
 /* ==========================================================================
@@ -576,8 +647,8 @@ body {
 .export-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.75rem;
+    margin-bottom: 2.25rem;
 }
 
 .export-card {
@@ -585,7 +656,7 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 2.5rem 2rem;
+    padding: 3rem 2.25rem;
 }
 
 .export-icon {
@@ -595,47 +666,50 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.35rem;
 }
 
 .xlsx-icon {
-    background: rgba(16, 185, 129, 0.15);
+    background: var(--success-light);
     color: var(--success);
-    box-shadow: 0 0 20px var(--success-glow);
+    border: 1px solid var(--success-border);
 }
 
 .pdf-icon {
-    background: rgba(225, 29, 72, 0.15);
+    background: var(--primary-light);
     color: var(--primary);
-    box-shadow: 0 0 20px var(--primary-glow);
+    border: 1px solid var(--primary-border);
 }
 
 .export-card h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main);
     margin-bottom: 0.5rem;
 }
 
 .export-card p {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: var(--text-muted);
     margin-bottom: 1.5rem;
-    max-width: 420px;
+    max-width: 440px;
+    line-height: 1.5;
 }
 
 .irrac-stats-preview {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 0.85rem;
+    margin-bottom: 1.75rem;
 }
 
 .stat-pill {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    padding: 0.4rem 0.85rem;
+    padding: 0.45rem 0.95rem;
     border-radius: 9999px;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 600;
+    color: var(--text-body);
 }
 
 .stat-pill span {
@@ -646,8 +720,9 @@ body {
 .card-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.85rem;
     width: 100%;
+    max-width: 360px;
 }
 
 /* ==========================================================================
@@ -657,130 +732,140 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
     font-family: inherit;
     font-size: 0.875rem;
     font-weight: 600;
-    padding: 0.75rem 1.35rem;
+    padding: 0.75rem 1.4rem;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: var(--transition-fast);
     text-decoration: none;
-    border: none;
+    border: 1px solid transparent;
 }
 
 .btn-sm {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.8rem;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.82rem;
 }
 
 .btn-xs {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.76rem;
 }
 
 .btn-lg {
-    padding: 0.9rem 1.6rem;
+    padding: 0.95rem 1.75rem;
     font-size: 0.95rem;
     font-weight: 700;
 }
 
+/* Primary Button (SENAI Red) */
 .btn-primary {
     background: var(--primary);
-    color: #fff;
-    box-shadow: 0 4px 15px var(--primary-glow);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(227, 6, 19, 0.2);
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--primary-glow);
+    box-shadow: 0 4px 12px rgba(227, 6, 19, 0.25);
+    transform: translateY(-1px);
 }
 
+/* Secondary Button (Clean Gray/White) */
 .btn-secondary {
-    background: var(--bg-surface);
+    background: #ffffff;
     color: var(--text-main);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-strong);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-surface);
+    border-color: var(--dark-main);
 }
 
+/* Success Button */
 .btn-success {
-    background: #059669;
-    color: #fff;
-    box-shadow: 0 4px 15px var(--success-glow);
+    background: var(--success);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
 }
 
 .btn-success:hover {
     background: #047857;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--success-glow);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    transform: translateY(-1px);
 }
 
+/* Danger Button */
 .btn-danger {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
 }
 
 .btn-danger:hover {
-    background: #ef4444;
-    color: #fff;
+    background: var(--danger);
+    color: #ffffff;
 }
 
+/* Outline Button */
 .btn-outline {
-    background: transparent;
+    background: #ffffff;
     color: var(--text-main);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-strong);
 }
 
 .btn-outline:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--dark-main);
+    background: var(--dark-main);
+    color: #ffffff;
 }
 
+/* Badges */
 .badge {
     display: inline-block;
     padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
 }
 
 .badge-area {
-    background: rgba(225, 29, 72, 0.15);
-    color: #f43f5e;
-    border: 1px solid rgba(225, 29, 72, 0.3);
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-strong);
 }
 
 .area-eletrica {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border-color: rgba(245, 158, 11, 0.3);
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
 }
 
 .area-automacao {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border-color: rgba(16, 185, 129, 0.3);
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #bae6fd;
 }
 
 .badge-hours {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-main);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
 }
 
 .badge-accent {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
 }
 
 .badge-outline {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-strong);
     color: var(--text-muted);
+    background: #ffffff;
 }
 
 /* ==========================================================================
@@ -790,14 +875,15 @@ body {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background: var(--bg-surface);
+    background: #ffffff;
     color: var(--text-main);
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--primary);
-    padding: 1rem 1.5rem;
+    border-left: 4px solid var(--dark-main);
+    padding: 1.15rem 1.65rem;
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
-    font-size: 0.9rem;
+    box-shadow: var(--shadow-lg);
+    font-size: 0.92rem;
+    font-weight: 600;
     z-index: 9999;
     transform: translateY(100px);
     opacity: 0;
@@ -814,15 +900,16 @@ body {
    Official SENAI Print Document Styles (A4 Standard)
    ========================================================================== */
 .official-senai-document {
-    background: #fff;
-    color: #000;
+    background: #ffffff;
+    color: #000000;
     padding: 2.5cm 2cm;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 11pt;
     line-height: 1.35;
     border-radius: var(--radius-md);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-    max-width: 900px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -830,10 +917,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    padding-bottom: 1.15rem;
+    margin-bottom: 1.75rem;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 700;
 }
 
@@ -856,12 +943,12 @@ body {
 }
 
 .senai-banner-black {
-    background: #000;
-    color: #fff;
+    background: #000000;
+    color: #ffffff;
     text-align: center;
     font-weight: bold;
     font-size: 13pt;
-    padding: 0.3rem;
+    padding: 0.35rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
 }
@@ -869,13 +956,13 @@ body {
 .senai-table-doc {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.35rem;
     font-size: 10pt;
 }
 
 .senai-table-doc th, .senai-table-doc td {
-    border: 1px solid #000;
-    padding: 0.4rem 0.6rem;
+    border: 1px solid #000000;
+    padding: 0.45rem 0.65rem;
     vertical-align: top;
 }
 
@@ -888,8 +975,8 @@ body {
 .doc-sa-title {
     font-weight: bold;
     text-transform: uppercase;
-    border-bottom: 2px solid #000;
-    padding-bottom: 0.2rem;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 0.25rem;
     margin: 1.5rem 0 0.75rem 0;
     font-size: 11pt;
 }
@@ -903,9 +990,8 @@ body {
    ========================================================================== */
 @media print {
     body {
-        background: #fff !important;
-        color: #000 !important;
-        background-image: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
     }
 
     .no-print {
@@ -927,6 +1013,7 @@ body {
 
     .official-senai-document {
         box-shadow: none !important;
+        border: none !important;
         padding: 0 !important;
         max-width: 100% !important;
     }

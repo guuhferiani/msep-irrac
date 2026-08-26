@@ -4,6 +4,7 @@
   "description": "Gerador de Plano de Ensino MSEP e Planilha IRRAC para Docentes SENAI",
   "main": "server.js",
   "scripts": {
+    "dev": "node --watch server.js",
     "start": "node server.js"
   },
   "keywords": [
