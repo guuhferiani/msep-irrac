@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENAI MSEP & IRRAC Suite | Gerador Pedagógico Multidisciplinar</title>
+    <title>Docente SENAI | Engenharia Pedagógica & Automação MSEP / IRRAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,18 +16,22 @@
             <div class="brand">
                 <div class="senai-logo-badge">SENAI</div>
                 <div class="brand-text">
-                    <h1>MSEP & IRRAC Suite</h1>
-                    <span class="subtext">Engenharia Pedagógica Universal • Todas as Áreas Tecnológicas</span>
+                    <h1>Docente SENAI</h1>
+                    <span class="subtext">Engenharia Pedagógica • MSEP & IRRAC Suite</span>
                 </div>
             </div>
             <div class="header-actions">
-                <div class="status-pill">
+                <div class="status-pill" id="storage-status-pill" title="Todas as alterações são salvas automaticamente no seu navegador">
                     <span class="status-dot"></span>
-                    <span id="server-status-text">Motor MSEP Online</span>
+                    <span id="storage-status-text">Salvo no Navegador</span>
                 </div>
+                <button id="btn-reset-plan" class="btn btn-outline btn-sm" title="Limpar rascunho e iniciar um novo planejamento">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    Novo Planejamento
+                </button>
                 <button id="btn-quick-samples" class="btn btn-secondary btn-sm" title="Alternar Curso">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                    Biblioteca de Cursos
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Biblioteca
                 </button>
             </div>
         </div>
@@ -187,7 +191,7 @@
 
                     <div class="form-group">
                         <label for="inp-docente">Docente Principal</label>
-                        <input type="text" id="inp-docente" class="form-control" value="Gustavo da Silva Feriani">
+                        <input type="text" id="inp-docente" class="form-control" value="Gustavo Feriani">
                     </div>
 
                     <div class="form-group">

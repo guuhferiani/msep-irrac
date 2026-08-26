@@ -1,12 +1,12 @@
-# 🏛️ SENAI MSEP & IRRAC Suite
+# 🏛️ Docente SENAI (MSEP & IRRAC Suite)
 
 <div align="center">
 
-![SENAI](https://img.shields.io/badge/SENAI-SP-E11D48?style=for-the-badge&logo=senai&logoColor=white)
-![NodeJS](https://img.shields.io/badge/Node.js-24.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![OpenXML](https://img.shields.io/badge/Excel-OpenXML-107C41?style=for-the-badge&logo=microsoftexcel&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)
-![Status](https://img.shields.io/badge/Status-100%25_Operacional-success?style=for-the-badge)
+[![SENAI](https://img.shields.io/badge/SENAI-SP-E30613?style=for-the-badge&logo=senai&logoColor=white)](https://sp.senai.br)
+[![Live](https://img.shields.io/badge/Vercel-docentesenai.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://docentesenai.vercel.app)
+[![NodeJS](https://img.shields.io/badge/Node.js-24.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![OpenXML](https://img.shields.io/badge/Excel-OpenXML-107C41?style=for-the-badge&logo=microsoftexcel&logoColor=white)](https://www.microsoft.com/excel)
+[![Status](https://img.shields.io/badge/Status-100%25_Operacional-success?style=for-the-badge)](#)
 
 <br>
 
@@ -19,9 +19,9 @@
 
 ## 🎯 Propósito do Projeto
 
-O **SENAI MSEP & IRRAC Suite** foi concebido para resolver uma das principais dores operacionais e burocráticas do corpo docente do SENAI: a necessidade de traduzir manualmente matrizes curriculares de **Planos de Curso** em **Situações de Aprendizagem (SAs)** contextualizadas e estruturar a complexa matriz de critérios avaliativos na planilha **IRRAC**.
+O **Docente SENAI** foi concebido para resolver uma das principais dores operacionais e burocráticas do corpo docente do SENAI: a necessidade de traduzir manualmente matrizes curriculares de **Planos de Curso** em **Situações de Aprendizagem (SAs)** contextualizadas e estruturar a complexa matriz de critérios avaliativos na planilha **IRRAC**.
 
-A plataforma elimina o retrabalho repetitivo, oferecendo uma solução **aberta, ágil, sem necessidade de login** e **100% modular** para todas as áreas tecnológicas da instituição.
+A plataforma elimina o retrabalho repetitivo, oferecendo uma solução **aberta, ágil, sem necessidade de login, com salvamento local automático (localStorage)** e **100% modular** para todas as áreas tecnológicas da instituição.
 
 ---
 

@@ -1,4 +1,9 @@
-// State Management
+// ==========================================================================
+// DOCENTE SENAI - STATE MANAGEMENT & LOCAL STORAGE
+// ==========================================================================
+
+const STORAGE_KEY = 'docente_senai_state_v1';
+
 let currentStep = 1;
 let sampleCourses = {};
 let currentCourseData = {
@@ -9,7 +14,7 @@ let currentCourseData = {
     workload: 48,
     turma: "IAGP 2614IB",
     semAno: "2º Sem/2026",
-    docente: "Gustavo da Silva Feriani",
+    docente: "Gustavo Feriani",
     escola: "Escola SENAI \"Mariano Ferraz\""
 };
 let currentMsepPlan = null;
@@ -18,9 +23,21 @@ let currentMsepPlan = null;
 document.addEventListener('DOMContentLoaded', async () => {
     initEventListeners();
     await fetchSamples();
-    // Select default preset without jumping out of Step 1
-    selectPresetCourse('chatgpt', false);
-    goToStep(1);
+
+    // Check for saved local state
+    const hasSavedState = loadFromLocalStorage();
+    if (hasSavedState && currentCourseData) {
+        populateStep2Inputs();
+        if (currentMsepPlan) {
+            renderMSEPViewer();
+            renderExportAndDocView();
+        }
+        goToStep(currentStep || 1, false);
+        setStorageStatus('Rascunho recuperado', true);
+    } else {
+        selectPresetCourse('chatgpt', false);
+        goToStep(1, false);
+    }
 });
 
 // Fetch Preloaded Samples from Backend
@@ -49,7 +66,6 @@ function initEventListeners() {
     document.querySelectorAll('.preset-card').forEach(card => {
         card.addEventListener('click', (e) => {
             const presetKey = card.dataset.preset;
-            // If clicked on "Selecionar Este Curso" button, advance directly to Step 2
             const isButton = e.target.closest('.btn-preset-select');
             selectPresetCourse(presetKey, !!isButton);
         });
@@ -95,11 +111,24 @@ function initEventListeners() {
         }
     });
 
+    // Step 2 live input listeners for real-time saving
+    const step2Inputs = ['inp-course-name', 'inp-unit-sigla', 'inp-workload', 'inp-school', 'inp-docente', 'inp-turma', 'inp-sem-ano'];
+    step2Inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                syncCourseDataFromInputs();
+                saveToLocalStorage();
+            });
+        }
+    });
+
     // Navigation buttons
     document.getElementById('btn-back-step-1').addEventListener('click', () => goToStep(1));
     document.getElementById('btn-generate-msep-flow').addEventListener('click', handleGenerateMSEP);
     document.getElementById('btn-proceed-export').addEventListener('click', () => {
         syncMsepPlanFromUI();
+        saveToLocalStorage();
         renderExportAndDocView();
         goToStep(4);
     });
@@ -115,12 +144,17 @@ function initEventListeners() {
         docView.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Header Quick Samples
+    // Header Actions
     document.getElementById('btn-quick-samples').addEventListener('click', () => goToStep(1));
+    
+    const btnReset = document.getElementById('btn-reset-plan');
+    if (btnReset) {
+        btnReset.addEventListener('click', handleResetPlan);
+    }
 }
 
 // Step Navigation
-function goToStep(stepNumber) {
+function goToStep(stepNumber, shouldSave = true) {
     currentStep = stepNumber;
 
     document.querySelectorAll('.step-btn').forEach(btn => {
@@ -141,10 +175,56 @@ function goToStep(stepNumber) {
         targetView.classList.add('active');
     }
 
+    if (shouldSave) {
+        saveToLocalStorage();
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Select Preset Course (with option to advance to step 2 or stay on step 1)
+// Populate Step 2 Inputs from state
+function populateStep2Inputs() {
+    document.getElementById('inp-course-name').value = currentCourseData.courseName || '';
+    document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla || '';
+    document.getElementById('inp-workload').value = currentCourseData.workload || 40;
+    document.getElementById('inp-school').value = currentCourseData.escola || 'Escola SENAI "Mariano Ferraz"';
+    document.getElementById('inp-docente').value = currentCourseData.docente || 'Gustavo Feriani';
+    document.getElementById('inp-turma').value = currentCourseData.turma || 'TURMA 2026';
+    document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '2º Sem/2026';
+
+    const badge = document.getElementById('selected-course-badge');
+    if (badge) badge.textContent = `${currentCourseData.area || 'Curso'}: ${currentCourseData.unitSigla || ''}`;
+
+    const step1Label = document.getElementById('step1-selected-name');
+    if (step1Label) {
+        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
+    }
+
+    if (currentCourseData.courseKey) {
+        document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
+        const targetCard = document.getElementById(`preset-${currentCourseData.courseKey}`);
+        if (targetCard) targetCard.classList.add('active-preset');
+    }
+}
+
+// Sync inputs to currentCourseData
+function syncCourseDataFromInputs() {
+    currentCourseData.courseName = document.getElementById('inp-course-name').value;
+    currentCourseData.courseUnit = document.getElementById('inp-course-name').value;
+    currentCourseData.unitSigla = document.getElementById('inp-unit-sigla').value;
+    currentCourseData.workload = parseInt(document.getElementById('inp-workload').value) || 40;
+    currentCourseData.escola = document.getElementById('inp-school').value;
+    currentCourseData.docente = document.getElementById('inp-docente').value;
+    currentCourseData.turma = document.getElementById('inp-turma').value;
+    currentCourseData.semAno = document.getElementById('inp-sem-ano').value;
+
+    const step1Label = document.getElementById('step1-selected-name');
+    if (step1Label) {
+        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
+    }
+}
+
+// Select Preset Course
 function selectPresetCourse(presetKey, advanceToStep2 = false) {
     document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
     const targetCard = document.getElementById(`preset-${presetKey}`);
@@ -154,22 +234,8 @@ function selectPresetCourse(presetKey, advanceToStep2 = false) {
         currentCourseData = { courseKey: presetKey, ...sampleCourses[presetKey] };
     }
 
-    // Populate Step 2 Inputs
-    document.getElementById('inp-course-name').value = currentCourseData.courseName || '';
-    document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla || '';
-    document.getElementById('inp-workload').value = currentCourseData.workload || 40;
-    document.getElementById('inp-school').value = currentCourseData.escola || 'Escola SENAI "Mariano Ferraz"';
-    document.getElementById('inp-docente').value = currentCourseData.docente || 'Docente SENAI';
-    document.getElementById('inp-turma').value = currentCourseData.turma || 'TURMA 2026';
-    document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '2º Sem/2026';
-
-    document.getElementById('selected-course-badge').textContent = `${currentCourseData.area || 'Curso'}: ${currentCourseData.unitSigla}`;
-    
-    // Update Step 1 Footer Text
-    const step1Label = document.getElementById('step1-selected-name');
-    if (step1Label) {
-        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
-    }
+    populateStep2Inputs();
+    saveToLocalStorage();
 
     if (advanceToStep2) {
         showToast(`Curso "${currentCourseData.courseName.substring(0, 30)}..." selecionado!`);
@@ -200,29 +266,19 @@ function handleFileUpload(file) {
             workload: 40,
             turma: "TURMA 2026",
             semAno: "2º Sem/2026",
-            docente: "Docente SENAI",
+            docente: "Gustavo Feriani",
             escola: 'Escola SENAI "Mariano Ferraz"'
         };
 
-        document.getElementById('inp-course-name').value = currentCourseData.courseName;
-        document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla;
-        document.getElementById('inp-workload').value = currentCourseData.workload;
-        document.getElementById('selected-course-badge').textContent = currentCourseData.unitSigla;
+        populateStep2Inputs();
+        saveToLocalStorage();
         goToStep(2);
     }
 }
 
 // Generate MSEP Plan via Backend API
 async function handleGenerateMSEP() {
-    currentCourseData.courseName = document.getElementById('inp-course-name').value;
-    currentCourseData.courseUnit = document.getElementById('inp-course-name').value;
-    currentCourseData.unitSigla = document.getElementById('inp-unit-sigla').value;
-    currentCourseData.workload = parseInt(document.getElementById('inp-workload').value) || 40;
-    currentCourseData.escola = document.getElementById('inp-school').value;
-    currentCourseData.docente = document.getElementById('inp-docente').value;
-    currentCourseData.turma = document.getElementById('inp-turma').value;
-    currentCourseData.semAno = document.getElementById('inp-sem-ano').value;
-
+    syncCourseDataFromInputs();
     showToast('Gerando Situações de Aprendizagem MSEP Modular...');
 
     try {
@@ -235,6 +291,7 @@ async function handleGenerateMSEP() {
         if (response.ok) {
             const data = await response.json();
             currentMsepPlan = data.plan;
+            saveToLocalStorage();
             renderMSEPViewer();
             goToStep(3);
             showToast(`Plano MSEP gerado com ${currentMsepPlan.situacoes.length} Situações de Aprendizagem!`);
@@ -373,12 +430,26 @@ function renderMSEPViewer() {
 
 // Attach Event Listeners to Dynamically Rendered MSEP Elements
 function attachDynamicMSEPHandlers() {
+    // Real-time auto-saving on all text and hours inputs in MSEP
+    const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input', '.crit-tipo-select'];
+    liveSelectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(inp => {
+            inp.addEventListener('input', () => {
+                syncMsepPlanFromUI();
+                saveToLocalStorage();
+            });
+        });
+    });
+
     // Hours inputs
     document.querySelectorAll('.sa-hours-input').forEach(inp => {
         inp.addEventListener('input', (e) => {
             const saIdx = parseInt(e.target.dataset.saIdx);
-            currentMsepPlan.situacoes[saIdx].aulas = parseInt(e.target.value) || 0;
+            if (currentMsepPlan && currentMsepPlan.situacoes[saIdx]) {
+                currentMsepPlan.situacoes[saIdx].aulas = parseInt(e.target.value) || 0;
+            }
             updateHoursBalanceIndicator();
+            saveToLocalStorage();
         });
     });
 
@@ -392,10 +463,10 @@ function attachDynamicMSEPHandlers() {
             }
             syncMsepPlanFromUI();
             currentMsepPlan.situacoes.splice(saIdx, 1);
-            // Renumber SAs
             currentMsepPlan.situacoes.forEach((sa, i) => {
                 sa.numero = String(i + 1).padStart(2, '0');
             });
+            saveToLocalStorage();
             renderMSEPViewer();
             showToast('Situação de Aprendizagem removida.');
         });
@@ -412,6 +483,7 @@ function attachDynamicMSEPHandlers() {
                 crit: "Executa os procedimentos técnicos atendendo aos requisitos de qualidade e segurança estabelecidos.",
                 tipo: "C"
             });
+            saveToLocalStorage();
             renderMSEPViewer();
             showToast('Novo critério adicionado.');
         });
@@ -424,6 +496,7 @@ function attachDynamicMSEPHandlers() {
             const cIdx = parseInt(btn.dataset.cIdx);
             syncMsepPlanFromUI();
             currentMsepPlan.situacoes[saIdx].criterios.splice(cIdx, 1);
+            saveToLocalStorage();
             renderMSEPViewer();
         });
     });
@@ -458,6 +531,7 @@ function handleAddNewSA() {
         ]
     });
 
+    saveToLocalStorage();
     renderMSEPViewer();
     showToast(`Situação de Aprendizagem ${newNum} adicionada!`);
 }
@@ -523,7 +597,7 @@ function renderExportAndDocView() {
     document.getElementById('stat-total-count').textContent = totalCrit + totalDesej;
 
     const docContainer = document.getElementById('printable-doc-content');
-    
+
     let docHTML = `
         <div class="senai-doc-header">
             <h1>${currentMsepPlan.escola}</h1>
@@ -540,7 +614,7 @@ function renderExportAndDocView() {
             </tr>
             <tr>
                 <td style="width: 50%;"><strong>Carga horária da UC:</strong> ${currentMsepPlan.cargaHoraria} horas</td>
-                <td style="width: 50%;"><strong>Nº de aulas:</strong> ${currentMsepPlan.numAulas}</td>
+                <td style="width: 50%;"><strong>Nº de aulas:</strong> ${currentMsepPlan.numAulas || currentMsepPlan.cargaHoraria}</td>
             </tr>
             <tr>
                 <td colspan="2">
@@ -549,7 +623,7 @@ function renderExportAndDocView() {
                 </td>
             </tr>
             <tr>
-                <td colspan="2"><strong>Objetivo da UC:</strong> ${currentMsepPlan.objetivoUC}</td>
+                <td colspan="2"><strong>Objetivo da UC:</strong> ${currentMsepPlan.objetivoUC || 'Desenvolver as competências técnicas e socioemocionais preconizadas na matriz curricular.'}</td>
             </tr>
         </table>
     `;
@@ -685,6 +759,7 @@ function renderExportAndDocView() {
 // Download IRRAC XLSX File
 async function handleDownloadIRRAC() {
     syncMsepPlanFromUI();
+    saveToLocalStorage();
     showToast('Compilando planilha XLSX oficial...');
 
     const payload = {
@@ -725,9 +800,60 @@ async function handleDownloadIRRAC() {
     }
 }
 
+// Local Storage Helper Functions
+function saveToLocalStorage() {
+    try {
+        const state = {
+            currentStep,
+            currentCourseData,
+            currentMsepPlan,
+            savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setStorageStatus('Salvo no Navegador');
+    } catch (err) {
+        console.warn('Could not save to localStorage:', err);
+    }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const state = JSON.parse(raw);
+        if (state.currentCourseData) currentCourseData = state.currentCourseData;
+        if (state.currentMsepPlan) currentMsepPlan = state.currentMsepPlan;
+        if (state.currentStep) currentStep = state.currentStep;
+        return true;
+    } catch (err) {
+        console.warn('Error reading from localStorage:', err);
+        return false;
+    }
+}
+
+function handleResetPlan() {
+    if (confirm('Deseja iniciar um novo planejamento? O rascunho atual será limpo.')) {
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+        currentMsepPlan = null;
+        selectPresetCourse('chatgpt', false);
+        goToStep(1, false);
+        showToast('Novo planejamento iniciado.');
+    }
+}
+
+function setStorageStatus(text, isTemporaryHighlight = false) {
+    const el = document.getElementById('storage-status-text');
+    if (el) {
+        el.textContent = text;
+    }
+}
+
 // Toast Helper
 function showToast(message) {
     const toast = document.getElementById('toast-notification');
+    if (!toast) return;
     toast.textContent = message;
     toast.classList.add('show');
     setTimeout(() => {

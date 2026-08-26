@@ -11,7 +11,7 @@ const SAMPLE_COURSES = {
         workload: 48,
         turma: "IAGP 2614IB",
         semAno: "2º Sem/2026",
-        docente: "Gustavo da Silva Feriani",
+        docente: "Gustavo Feriani",
         escola: "Escola SENAI \"Mariano Ferraz\"",
         capacidadesTecnicas: [
             "Identificar inteligências artificiais generativas, suas arquiteturas e funcionamento.",
@@ -42,7 +42,7 @@ const SAMPLE_COURSES = {
         workload: 40,
         turma: "DESGAGR 2614IB",
         semAno: "2º Sem/2026",
-        docente: "Gustavo da Silva Feriani",
+        docente: "Gustavo Feriani",
         escola: "Escola SENAI \"Mariano Ferraz\"",
         capacidadesTecnicas: [
             "Diferenciar IA tradicional e IA generativa, tendo em vista, finalidades, entradas e saídas.",
