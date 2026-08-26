@@ -138,6 +138,13 @@ function initEventListeners() {
     if (btnReset) {
         btnReset.addEventListener('click', handleResetPlan);
     }
+
+    // Global click outside listener to close custom dropdowns
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-select-wrap')) {
+            document.querySelectorAll('.custom-select-wrap.open').forEach(w => w.classList.remove('open'));
+        }
+    });
 }
 
 // Step Navigation
@@ -463,10 +470,22 @@ function renderMSEPViewer() {
                                     <input type="text" class="form-control form-control-sm crit-text-input" data-sa-idx="${saIdx}" data-c-idx="${cIdx}" value="${c.crit}" style="${c.tipo === 'C' ? 'font-weight: 700;' : ''}">
                                 </td>
                                 <td style="text-align: center;">
-                                    <select class="form-control form-control-sm crit-tipo-select" data-sa-idx="${saIdx}" data-c-idx="${cIdx}">
-                                        <option value="C" ${c.tipo === 'C' ? 'selected' : ''}>Crítico (C)</option>
-                                        <option value="D" ${c.tipo === 'D' ? 'selected' : ''}>Desejável (D)</option>
-                                    </select>
+                                    <div class="custom-select-wrap" data-sa-idx="${saIdx}" data-c-idx="${cIdx}" data-selected-val="${c.tipo || 'C'}">
+                                        <button type="button" class="custom-select-trigger" aria-haspopup="listbox">
+                                            <span class="custom-select-label">${c.tipo === 'C' ? 'Crítico (C)' : 'Desejável (D)'}</span>
+                                            <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                        </button>
+                                        <div class="custom-select-dropdown" role="listbox">
+                                            <div class="custom-select-item ${c.tipo === 'C' ? 'active' : ''}" data-val="C">
+                                                <span class="item-title">Crítico (C)</span>
+                                                <span class="item-desc">Item obrigatório para aprovação</span>
+                                            </div>
+                                            <div class="custom-select-item ${c.tipo === 'D' ? 'active' : ''}" data-val="D">
+                                                <span class="item-title">Desejável (D)</span>
+                                                <span class="item-desc">Item de aprimoramento e notas</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td style="text-align: center;">
                                     <button class="btn btn-outline btn-xs btn-delete-crit" data-sa-idx="${saIdx}" data-c-idx="${cIdx}" title="Excluir linha">🗑️</button>
@@ -485,7 +504,7 @@ function renderMSEPViewer() {
 
 // Attach Event Listeners to Dynamically Rendered MSEP Elements
 function attachDynamicMSEPHandlers() {
-    const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input', '.crit-tipo-select'];
+    const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input'];
     liveSelectors.forEach(sel => {
         document.querySelectorAll(sel).forEach(inp => {
             inp.addEventListener('input', () => {
@@ -496,6 +515,40 @@ function attachDynamicMSEPHandlers() {
                 syncMsepPlanFromUI();
                 saveToLocalStorage();
             });
+        });
+    });
+
+    // Custom Dropdown Triggers
+    document.querySelectorAll('.custom-select-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wrap = btn.closest('.custom-select-wrap');
+            const isOpen = wrap.classList.contains('open');
+            document.querySelectorAll('.custom-select-wrap.open').forEach(w => {
+                if (w !== wrap) w.classList.remove('open');
+            });
+            wrap.classList.toggle('open', !isOpen);
+        });
+    });
+
+    // Custom Dropdown Item Selection
+    document.querySelectorAll('.custom-select-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wrap = item.closest('.custom-select-wrap');
+            const val = item.getAttribute('data-val');
+            const label = item.querySelector('.item-title').textContent.trim();
+
+            wrap.setAttribute('data-selected-val', val);
+            wrap.querySelector('.custom-select-label').textContent = label;
+
+            wrap.querySelectorAll('.custom-select-item').forEach(it => it.classList.remove('active'));
+            item.classList.add('active');
+
+            wrap.classList.remove('open');
+
+            syncMsepPlanFromUI();
+            saveToLocalStorage();
         });
     });
 
@@ -637,8 +690,10 @@ function syncMsepPlanFromUI() {
             const textInp = document.querySelector(`.crit-text-input[data-sa-idx="${saIdx}"][data-c-idx="${cIdx}"]`);
             if (textInp) c.crit = textInp.value;
 
-            const tipoSel = document.querySelector(`.crit-tipo-select[data-sa-idx="${saIdx}"][data-c-idx="${cIdx}"]`);
-            if (tipoSel) c.tipo = tipoSel.value;
+            const wrap = document.querySelector(`.custom-select-wrap[data-sa-idx="${saIdx}"][data-c-idx="${cIdx}"]`);
+            if (wrap) {
+                c.tipo = wrap.getAttribute('data-selected-val') || 'C';
+            }
 
             c.row = globalRowCounter++;
         });
