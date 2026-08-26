@@ -3,7 +3,7 @@
 // Workflow: From Scratch (File Upload / Direct Input)
 // ==========================================================================
 
-const STORAGE_KEY = 'docente_senai_state_v1';
+const STORAGE_KEY = 'docente_senai_state_v2';
 
 let currentStep = 1;
 let currentCourseData = {
@@ -11,11 +11,11 @@ let currentCourseData = {
     courseName: "",
     courseUnit: "",
     unitSigla: "",
-    workload: 40,
-    turma: "TURMA 2026",
-    semAno: "2º Sem/2026",
+    workload: "",
+    turma: "",
+    semAno: "",
     docente: "Gustavo Feriani",
-    escola: "Escola SENAI \"Mariano Ferraz\"",
+    escola: 'Escola SENAI "Mariano Ferraz"',
     fileName: null
 };
 let currentMsepPlan = null;
@@ -176,9 +176,9 @@ function resetFormToBlank() {
         courseName: "",
         courseUnit: "",
         unitSigla: "",
-        workload: 40,
-        turma: "TURMA 2026",
-        semAno: "2º Sem/2026",
+        workload: "",
+        turma: "",
+        semAno: "",
         docente: "Gustavo Feriani",
         escola: 'Escola SENAI "Mariano Ferraz"',
         fileName: null
@@ -192,33 +192,55 @@ function resetFormToBlank() {
 function populateStep2Inputs() {
     document.getElementById('inp-course-name').value = currentCourseData.courseName || '';
     document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla || '';
-    document.getElementById('inp-workload').value = currentCourseData.workload || 40;
-    document.getElementById('inp-school').value = currentCourseData.escola || 'Escola SENAI "Mariano Ferraz"';
+    document.getElementById('inp-workload').value = currentCourseData.workload || '';
+    document.getElementById('inp-school').value = currentCourseData.escola || '';
     document.getElementById('inp-docente').value = currentCourseData.docente || 'Gustavo Feriani';
-    document.getElementById('inp-turma').value = currentCourseData.turma || 'TURMA 2026';
-    document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '2º Sem/2026';
+    document.getElementById('inp-turma').value = currentCourseData.turma || '';
+    document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '';
 
     const badge = document.getElementById('selected-course-badge');
     if (badge) {
-        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : 'Novo Curso';
+        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : (currentCourseData.courseName ? currentCourseData.courseName : 'Novo Curso');
     }
 }
 
 // Sync inputs to currentCourseData
 function syncCourseDataFromInputs() {
-    currentCourseData.courseName = document.getElementById('inp-course-name').value;
-    currentCourseData.courseUnit = document.getElementById('inp-course-name').value;
-    currentCourseData.unitSigla = document.getElementById('inp-unit-sigla').value;
-    currentCourseData.workload = parseInt(document.getElementById('inp-workload').value) || 40;
-    currentCourseData.escola = document.getElementById('inp-school').value;
-    currentCourseData.docente = document.getElementById('inp-docente').value;
-    currentCourseData.turma = document.getElementById('inp-turma').value;
-    currentCourseData.semAno = document.getElementById('inp-sem-ano').value;
+    currentCourseData.courseName = document.getElementById('inp-course-name').value.trim();
+    currentCourseData.courseUnit = document.getElementById('inp-course-name').value.trim();
+    currentCourseData.unitSigla = document.getElementById('inp-unit-sigla').value.trim();
+    const rawHours = document.getElementById('inp-workload').value;
+    currentCourseData.workload = rawHours ? parseInt(rawHours) : '';
+    currentCourseData.escola = document.getElementById('inp-school').value.trim();
+    currentCourseData.docente = document.getElementById('inp-docente').value.trim();
+    currentCourseData.turma = document.getElementById('inp-turma').value.trim();
+    currentCourseData.semAno = document.getElementById('inp-sem-ano').value.trim();
 
     const badge = document.getElementById('selected-course-badge');
     if (badge) {
-        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : 'Novo Curso';
+        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : (currentCourseData.courseName ? currentCourseData.courseName : 'Novo Curso');
     }
+}
+
+// Intelligent Sigla Generator
+function generateSigla(name) {
+    if (!name) return "";
+    const upper = name.toUpperCase();
+    if (upper.includes("DESENVOLVIMENTO") || upper.includes("SISTEMA")) return "DEV-SIST";
+    if (upper.includes("ELETRICISTA") || upper.includes("PREDIAL")) return "ELET-PRED";
+    if (upper.includes("EMPILHADEIRA") || upper.includes("NR-11") || upper.includes("NR11")) return "NR11-EMP";
+    if (upper.includes("DESENHO") || upper.includes("MECÂNICO") || upper.includes("MECANICO")) return "DES-MEC";
+    if (upper.includes("VEÍCULOS") || upper.includes("VEICULOS") || upper.includes("LEVES")) return "AUT-LEVES";
+    if (upper.includes("MAQUINISTA")) return "MAQUINISTA";
+    if (upper.includes("BOAS PRÁTICAS") || upper.includes("MERCADO")) return "BOAS-PRAT";
+    if (upper.includes("ANTIGRAVITY")) return "ANTIGRAVITY";
+    if (upper.includes("CHATGPT") || upper.includes("IA GENERATIVA")) return "CHATGPT";
+
+    const words = upper.split(/[\s\-_]+/).filter(w => w.length > 2);
+    if (words.length >= 2) {
+        return (words[0].substring(0, 4) + "-" + words[1].substring(0, 4)).toUpperCase();
+    }
+    return upper.substring(0, 8).toUpperCase();
 }
 
 // Handle Custom File Upload
@@ -232,13 +254,18 @@ function handleFileUpload(file) {
     currentCourseData.courseKey = 'custom';
     currentCourseData.courseName = cleanName.toUpperCase();
     currentCourseData.courseUnit = cleanName.toUpperCase();
-    currentCourseData.unitSigla = cleanName.substring(0, 10).toUpperCase();
+    currentCourseData.unitSigla = generateSigla(cleanName);
+    currentCourseData.workload = "";
+    currentCourseData.turma = "";
+    currentCourseData.semAno = "";
+    currentCourseData.docente = "Gustavo Feriani";
+    currentCourseData.escola = 'Escola SENAI "Mariano Ferraz"';
     
     populateStep2Inputs();
     updateStep1FileCard(fileSizeKB);
     saveToLocalStorage();
 
-    showToast(`Plano de Curso "${fileName}" anexado com sucesso!`);
+    showToast(`Plano de Curso "${fileName}" anexado! Informe a carga horária no Passo 2.`);
 }
 
 // Update Step 1 File Preview Card
@@ -278,10 +305,33 @@ async function handleGenerateMSEP() {
     syncCourseDataFromInputs();
 
     if (!currentCourseData.courseName) {
-        currentCourseData.courseName = "Unidade Curricular Técnica";
-        currentCourseData.courseUnit = "Unidade Curricular Técnica";
-        currentCourseData.unitSigla = "UC-TEC";
-        populateStep2Inputs();
+        showToast('Por favor, informe o Nome do Curso / Unidade Curricular.');
+        document.getElementById('inp-course-name').focus();
+        return;
+    }
+
+    if (!currentCourseData.workload || isNaN(currentCourseData.workload) || currentCourseData.workload <= 0) {
+        showToast('Por favor, informe a Carga Horária Total da UC (ex: 80, 120, 160h).');
+        document.getElementById('inp-workload').focus();
+        return;
+    }
+
+    if (!currentCourseData.unitSigla) {
+        currentCourseData.unitSigla = generateSigla(currentCourseData.courseName);
+        document.getElementById('inp-unit-sigla').value = currentCourseData.unitSigla;
+    }
+
+    if (!currentCourseData.turma) {
+        currentCourseData.turma = `TURMA ${new Date().getFullYear()}`;
+    }
+    if (!currentCourseData.semAno) {
+        currentCourseData.semAno = `2º Sem/${new Date().getFullYear()}`;
+    }
+    if (!currentCourseData.escola) {
+        currentCourseData.escola = 'Escola SENAI "Mariano Ferraz"';
+    }
+    if (!currentCourseData.docente) {
+        currentCourseData.docente = 'Gustavo Feriani';
     }
 
     showToast('Gerando Situações de Aprendizagem MSEP Modular...');
