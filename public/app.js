@@ -1,33 +1,34 @@
 // ==========================================================================
 // DOCENTE SENAI - STATE MANAGEMENT & LOCAL STORAGE
+// Workflow: From Scratch (File Upload / Direct Input)
 // ==========================================================================
 
 const STORAGE_KEY = 'docente_senai_state_v1';
 
 let currentStep = 1;
-let sampleCourses = {};
 let currentCourseData = {
-    courseKey: "chatgpt",
-    courseName: "Inteligências Artificiais Generativas Aplicada a Programação – ChatGPT",
-    courseUnit: "Inteligências Artificiais Generativas Aplicada a Programação – ChatGPT",
-    unitSigla: "ChatGPT",
-    workload: 48,
-    turma: "IAGP 2614IB",
+    courseKey: "custom",
+    courseName: "",
+    courseUnit: "",
+    unitSigla: "",
+    workload: 40,
+    turma: "TURMA 2026",
     semAno: "2º Sem/2026",
     docente: "Gustavo Feriani",
-    escola: "Escola SENAI \"Mariano Ferraz\""
+    escola: "Escola SENAI \"Mariano Ferraz\"",
+    fileName: null
 };
 let currentMsepPlan = null;
 
 // Initialize Application
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
-    await fetchSamples();
 
     // Check for saved local state
     const hasSavedState = loadFromLocalStorage();
-    if (hasSavedState && currentCourseData) {
+    if (hasSavedState && currentCourseData && (currentCourseData.courseName || currentCourseData.fileName || currentMsepPlan)) {
         populateStep2Inputs();
+        updateStep1FileCard();
         if (currentMsepPlan) {
             renderMSEPViewer();
             renderExportAndDocView();
@@ -35,22 +36,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         goToStep(currentStep || 1, false);
         setStorageStatus('Rascunho recuperado', true);
     } else {
-        selectPresetCourse('chatgpt', false);
+        resetFormToBlank();
         goToStep(1, false);
     }
 });
-
-// Fetch Preloaded Samples from Backend
-async function fetchSamples() {
-    try {
-        const res = await fetch('/api/samples');
-        if (res.ok) {
-            sampleCourses = await res.json();
-        }
-    } catch (err) {
-        console.warn('Using default local samples', err);
-    }
-}
 
 // Event Listeners Initialization
 function initEventListeners() {
@@ -59,15 +48,6 @@ function initEventListeners() {
         btn.addEventListener('click', () => {
             const step = parseInt(btn.dataset.step);
             goToStep(step);
-        });
-    });
-
-    // Preset cards selection
-    document.querySelectorAll('.preset-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const presetKey = card.dataset.preset;
-            const isButton = e.target.closest('.btn-preset-select');
-            selectPresetCourse(presetKey, !!isButton);
         });
     });
 
@@ -111,6 +91,15 @@ function initEventListeners() {
         }
     });
 
+    // Remove attached file button
+    const btnRemoveFile = document.getElementById('btn-remove-attached-file');
+    if (btnRemoveFile) {
+        btnRemoveFile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleRemoveAttachedFile();
+        });
+    }
+
     // Step 2 live input listeners for real-time saving
     const step2Inputs = ['inp-course-name', 'inp-unit-sigla', 'inp-workload', 'inp-school', 'inp-docente', 'inp-turma', 'inp-sem-ano'];
     step2Inputs.forEach(id => {
@@ -144,9 +133,7 @@ function initEventListeners() {
         docView.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Header Actions
-    document.getElementById('btn-quick-samples').addEventListener('click', () => goToStep(1));
-    
+    // Header Reset Action
     const btnReset = document.getElementById('btn-reset-plan');
     if (btnReset) {
         btnReset.addEventListener('click', handleResetPlan);
@@ -182,6 +169,25 @@ function goToStep(stepNumber, shouldSave = true) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Reset form to clean state
+function resetFormToBlank() {
+    currentCourseData = {
+        courseKey: "custom",
+        courseName: "",
+        courseUnit: "",
+        unitSigla: "",
+        workload: 40,
+        turma: "TURMA 2026",
+        semAno: "2º Sem/2026",
+        docente: "Gustavo Feriani",
+        escola: 'Escola SENAI "Mariano Ferraz"',
+        fileName: null
+    };
+    currentMsepPlan = null;
+    populateStep2Inputs();
+    updateStep1FileCard();
+}
+
 // Populate Step 2 Inputs from state
 function populateStep2Inputs() {
     document.getElementById('inp-course-name').value = currentCourseData.courseName || '';
@@ -193,17 +199,8 @@ function populateStep2Inputs() {
     document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '2º Sem/2026';
 
     const badge = document.getElementById('selected-course-badge');
-    if (badge) badge.textContent = `${currentCourseData.area || 'Curso'}: ${currentCourseData.unitSigla || ''}`;
-
-    const step1Label = document.getElementById('step1-selected-name');
-    if (step1Label) {
-        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
-    }
-
-    if (currentCourseData.courseKey) {
-        document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
-        const targetCard = document.getElementById(`preset-${currentCourseData.courseKey}`);
-        if (targetCard) targetCard.classList.add('active-preset');
+    if (badge) {
+        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : 'Novo Curso';
     }
 }
 
@@ -218,67 +215,75 @@ function syncCourseDataFromInputs() {
     currentCourseData.turma = document.getElementById('inp-turma').value;
     currentCourseData.semAno = document.getElementById('inp-sem-ano').value;
 
-    const step1Label = document.getElementById('step1-selected-name');
-    if (step1Label) {
-        step1Label.textContent = `${currentCourseData.courseName} (${currentCourseData.workload}h)`;
-    }
-}
-
-// Select Preset Course
-function selectPresetCourse(presetKey, advanceToStep2 = false) {
-    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
-    const targetCard = document.getElementById(`preset-${presetKey}`);
-    if (targetCard) targetCard.classList.add('active-preset');
-
-    if (sampleCourses[presetKey]) {
-        currentCourseData = { courseKey: presetKey, ...sampleCourses[presetKey] };
-    }
-
-    populateStep2Inputs();
-    saveToLocalStorage();
-
-    if (advanceToStep2) {
-        showToast(`Curso "${currentCourseData.courseName.substring(0, 30)}..." selecionado!`);
-        goToStep(2);
+    const badge = document.getElementById('selected-course-badge');
+    if (badge) {
+        badge.textContent = currentCourseData.unitSigla ? `UC: ${currentCourseData.unitSigla}` : 'Novo Curso';
     }
 }
 
 // Handle Custom File Upload
 function handleFileUpload(file) {
-    const fileName = file.name.toLowerCase();
-    showToast(`Arquivo "${file.name}" carregado. Analisando matriz curricular...`);
+    const fileName = file.name;
+    const fileSizeKB = Math.round(file.size / 1024);
+    
+    const cleanName = fileName.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ").trim();
+    
+    currentCourseData.fileName = fileName;
+    currentCourseData.courseKey = 'custom';
+    currentCourseData.courseName = cleanName.toUpperCase();
+    currentCourseData.courseUnit = cleanName.toUpperCase();
+    currentCourseData.unitSigla = cleanName.substring(0, 10).toUpperCase();
+    
+    populateStep2Inputs();
+    updateStep1FileCard(fileSizeKB);
+    saveToLocalStorage();
 
-    if (fileName.includes('chatgpt')) {
-        selectPresetCourse('chatgpt', true);
-    } else if (fileName.includes('antigravity')) {
-        selectPresetCourse('antigravity', true);
-    } else if (fileName.includes('eletri') || fileName.includes('comando')) {
-        selectPresetCourse('eletrica', true);
-    } else if (fileName.includes('clp') || fileName.includes('automa')) {
-        selectPresetCourse('automacao', true);
+    showToast(`Plano de Curso "${fileName}" anexado com sucesso!`);
+}
+
+// Update Step 1 File Preview Card
+function updateStep1FileCard(fileSizeKB = null) {
+    const card = document.getElementById('attached-file-card');
+    const nameEl = document.getElementById('attached-file-name');
+    const sizeEl = document.getElementById('attached-file-size');
+    const labelEl = document.getElementById('step1-selected-name');
+
+    if (currentCourseData.fileName) {
+        card.style.display = 'flex';
+        nameEl.textContent = currentCourseData.fileName;
+        sizeEl.textContent = fileSizeKB ? `${fileSizeKB} KB • Documento pronto para processamento` : `Documento carregado`;
+        if (labelEl) {
+            labelEl.textContent = `${currentCourseData.fileName} (${currentCourseData.courseName})`;
+        }
     } else {
-        const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
-        currentCourseData = {
-            courseKey: 'custom',
-            courseName: cleanName.toUpperCase(),
-            courseUnit: cleanName.toUpperCase(),
-            unitSigla: cleanName.substring(0, 8).toUpperCase(),
-            workload: 40,
-            turma: "TURMA 2026",
-            semAno: "2º Sem/2026",
-            docente: "Gustavo Feriani",
-            escola: 'Escola SENAI "Mariano Ferraz"'
-        };
-
-        populateStep2Inputs();
-        saveToLocalStorage();
-        goToStep(2);
+        card.style.display = 'none';
+        if (labelEl) {
+            labelEl.textContent = currentCourseData.courseName ? `${currentCourseData.courseName} (Manual)` : 'Nenhum arquivo anexado (ou avance para preencher manualmente)';
+        }
     }
+}
+
+// Remove attached file
+function handleRemoveAttachedFile() {
+    currentCourseData.fileName = null;
+    const fileInput = document.getElementById('file-input');
+    if (fileInput) fileInput.value = '';
+    updateStep1FileCard();
+    saveToLocalStorage();
+    showToast('Arquivo desanexado.');
 }
 
 // Generate MSEP Plan via Backend API
 async function handleGenerateMSEP() {
     syncCourseDataFromInputs();
+
+    if (!currentCourseData.courseName) {
+        currentCourseData.courseName = "Unidade Curricular Técnica";
+        currentCourseData.courseUnit = "Unidade Curricular Técnica";
+        currentCourseData.unitSigla = "UC-TEC";
+        populateStep2Inputs();
+    }
+
     showToast('Gerando Situações de Aprendizagem MSEP Modular...');
 
     try {
@@ -430,7 +435,6 @@ function renderMSEPViewer() {
 
 // Attach Event Listeners to Dynamically Rendered MSEP Elements
 function attachDynamicMSEPHandlers() {
-    // Real-time auto-saving on all text and hours inputs in MSEP
     const liveSelectors = ['.sa-title-input', '.sa-context-input', '.sa-desafio-input', '.sa-obs-input', '.sa-res-input', '.crit-cap-input', '.crit-text-input', '.crit-tipo-select'];
     liveSelectors.forEach(sel => {
         document.querySelectorAll(sel).forEach(inp => {
@@ -480,7 +484,7 @@ function attachDynamicMSEPHandlers() {
             currentMsepPlan.situacoes[saIdx].criterios.push({
                 row: 15 + currentMsepPlan.situacoes[saIdx].criterios.length,
                 cap: "",
-                crit: "Executa os procedimentos técnicos atendendo aos requisitos de qualidade e segurança estabelecidos.",
+                crit: "Executa os procedimentos técnicos atendendo aos requisitos de qualidade e conformidade.",
                 tipo: "C"
             });
             saveToLocalStorage();
@@ -525,7 +529,7 @@ function handleAddNewSA() {
         recursos: "Ambiente pedagógico especializado e ferramentas do curso.",
         criterios: [
             { row: 15, cap: "Capacidade Técnica Adicional", crit: "Executa os procedimentos com precisão e conformidade técnica.", tipo: "C" },
-            { row: 16, cap: "", crit: "Aplica normas e regulamentações de segurança aplicáveis à área.", tipo: "D" },
+            { row: 16, cap: "", crit: "Aplica normas e regulamentações técnicas e de segurança da área.", tipo: "D" },
             { row: 17, cap: "Demonstrar responsabilidade", crit: "Cumpre os prazos e diretrizes técnicas do projeto de forma metódica.", tipo: "C" },
             { row: 18, cap: "", crit: "Demonstra postura colaborativa e organização no ambiente de trabalho.", tipo: "D" }
         ]
@@ -832,14 +836,13 @@ function loadFromLocalStorage() {
 }
 
 function handleResetPlan() {
-    if (confirm('Deseja iniciar um novo planejamento? O rascunho atual será limpo.')) {
+    if (confirm('Deseja iniciar um novo planejamento do zero? O rascunho atual será limpo.')) {
         try {
             localStorage.removeItem(STORAGE_KEY);
         } catch (e) {}
-        currentMsepPlan = null;
-        selectPresetCourse('chatgpt', false);
+        resetFormToBlank();
         goToStep(1, false);
-        showToast('Novo planejamento iniciado.');
+        showToast('Novo planejamento iniciado do zero.');
     }
 }
 

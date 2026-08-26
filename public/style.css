@@ -412,6 +412,29 @@ body {
     margin-bottom: 1.15rem;
 }
 
+.attached-file-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--dark-main);
+    border-radius: var(--radius-md);
+    padding: 1.15rem 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    animation: fadeIn 0.25s ease;
+}
+
+.attached-file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.attached-file-icon {
+    font-size: 1.75rem;
+}
+
 /* ==========================================================================
    Forms & Inputs (Step 2: Wide Ergonomic Form)
    ========================================================================== */
