@@ -1291,22 +1291,41 @@ select.form-control:focus, .crit-tipo-select:focus {
 }
 
 /* ==========================================================================
-   Print Media Query
+   Print Media Query (Clean A4 Document without Browser Headers/Footers)
    ========================================================================== */
+@page {
+    size: A4 portrait;
+    margin: 10mm 15mm 10mm 15mm;
+}
+
 @media print {
-    body {
+    html, body {
         background: #ffffff !important;
         color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    .no-print {
+    header, nav, .header-container, .top-header, .doc-controls, .action-bar, .no-print, .step-header, .card-footer, #modal-overlay, #toast, .export-grid, .doc-controls-badge {
         display: none !important;
     }
 
-    .main-content {
+    .app-container, .main-content {
         margin: 0 !important;
         padding: 0 !important;
         max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .step-view {
+        display: none !important;
+    }
+
+    #step-4.step-view {
+        display: block !important;
     }
 
     .card {
@@ -1314,13 +1333,16 @@ select.form-control:focus, .crit-tipo-select:focus {
         box-shadow: none !important;
         background: transparent !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
 
     .official-senai-document {
         box-shadow: none !important;
         border: none !important;
         padding: 0 !important;
+        margin: 0 !important;
         max-width: 100% !important;
+        width: 100% !important;
     }
 
     .print-page-break {

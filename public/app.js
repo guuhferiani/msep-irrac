@@ -127,7 +127,15 @@ function initEventListeners() {
 
     // Export buttons
     document.getElementById('btn-download-xlsx').addEventListener('click', handleDownloadIRRAC);
-    document.getElementById('btn-print-plano').addEventListener('click', () => window.print());
+    document.getElementById('btn-print-plano').addEventListener('click', () => {
+        const originalTitle = document.title;
+        const cleanName = (currentCourseData.courseName || 'SENAI_MSEP').replace(/[^a-zA-Z0-9-_]/g, '_');
+        document.title = `Plano de Ensino - ${cleanName}`;
+        window.print();
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 1000);
+    });
     document.getElementById('btn-toggle-plano-preview').addEventListener('click', () => {
         const docView = document.getElementById('official-doc-view');
         docView.scrollIntoView({ behavior: 'smooth' });
