@@ -150,7 +150,13 @@ const SAMPLE_COURSES = {
     }
 };
 
-function generateMSEPPlan(courseInfo) {
+async function generateMSEPPlan(courseInfo) {
+    // Attempt Groq AI Generation first if Key is Available
+    const aiPlan = await generateWithGroq(courseInfo);
+    if (aiPlan && aiPlan.situacoes && aiPlan.situacoes.length > 0) {
+        return aiPlan;
+    }
+
     const key = courseInfo.courseKey || '';
     const nameLower = (courseInfo.courseName || '').toLowerCase();
 
@@ -311,12 +317,6 @@ function buildPresetPlan(preset, overrides) {
             }
         ];
         return base;
-    }
-
-    // Attempt Groq AI Generation if Key is Available, otherwise Dynamic Generator
-    const aiPlan = await generateWithGroq(overrides || preset);
-    if (aiPlan && aiPlan.situacoes && aiPlan.situacoes.length > 0) {
-        return aiPlan;
     }
 
     return buildGenericDynamicPlan(overrides || preset);
