@@ -1,5 +1,29 @@
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
 const AdmZip = require('adm-zip');
 const templateBase64 = require('../template_base64');
+
+// Load environment variables from .env if present (Local / Self-hosted)
+try {
+    const envPath = path.resolve(__dirname, '..', '.env');
+    if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, 'utf8');
+        content.split('\n').forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#')) {
+                const eqIdx = trimmed.indexOf('=');
+                if (eqIdx > 0) {
+                    const k = trimmed.substring(0, eqIdx).trim();
+                    const v = trimmed.substring(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+                    if (!process.env[k]) {
+                        process.env[k] = v;
+                    }
+                }
+            }
+        });
+    }
+} catch (e) {}
 
 // Multidisciplinary Sample Courses
 const SAMPLE_COURSES = {
@@ -289,7 +313,146 @@ function buildPresetPlan(preset, overrides) {
         return base;
     }
 
+    // Attempt Groq AI Generation if Key is Available, otherwise Dynamic Generator
+    const aiPlan = await generateWithGroq(overrides || preset);
+    if (aiPlan && aiPlan.situacoes && aiPlan.situacoes.length > 0) {
+        return aiPlan;
+    }
+
     return buildGenericDynamicPlan(overrides || preset);
+}
+
+// ⚡ Ultra-Fast Groq AI LPU Pedagogical Generator (Llama 3.3 70B)
+async function generateWithGroq(courseInfo) {
+    const apiKey = process.env.GROQ_API_KEY || (courseInfo && courseInfo.groqApiKey);
+    if (!apiKey || apiKey === 'gsk_sua_chave_groq_aqui' || apiKey.trim().length < 10) {
+        return null;
+    }
+
+    const totalHours = parseInt(courseInfo.workload) || 40;
+    const courseName = courseInfo.courseName || "Curso Técnico";
+    const sigla = courseInfo.unitSigla || "CURSO";
+
+    const prompt = `Você é um Engenheiro Pedagógico Especialista do SENAI-SP com domínio completo da Metodologia SENAI de Educação Profissional (MSEP) e do Instrumento de Registro de Resultados da Avaliação com Critérios (IRRAC).
+
+Gere um Plano de Ensino MSEP Modular para o seguinte curso:
+- Curso / Unidade Curricular: "${courseName}"
+- Sigla da UC: "${sigla}"
+- Carga Horária Total: ${totalHours} horas
+- Escola: "${courseInfo.escola || 'Escola SENAI'}"
+- Docente: "${courseInfo.docente || 'Docente SENAI'}"
+- Turma: "${courseInfo.turma || 'TURMA 2026'}"
+- Semestre/Ano: "${courseInfo.semAno || '2º Sem/2026'}"
+
+Diretrizes Rigorosas do SENAI MSEP:
+1. Determine a quantidade adequada de Situações de Aprendizagem (SAs) para a carga horária (ex: 20h = 1 SA; 40-60h = 2 SAs; 80-100h = 3 SAs; 120-200h = 4 SAs).
+2. A soma exata do campo 'aulas' de todas as SAs DEVE SER EXATAMENTE IGUAL a ${totalHours} horas.
+3. Para cada SA:
+   - 'numero': "01", "02", etc.
+   - 'titulo': Título prático e estimulante contextualizado na indústria.
+   - 'aulas': Quantidade de horas (inteiro).
+   - 'estrategiaTipo': 'Situação-problema', 'Projeto', 'Estudo de caso' ou 'Pesquisa aplicada'.
+   - 'capacidadesTecnicas': Array com 2 a 4 capacidades técnicas específicas e observáveis da área profissional.
+   - 'capacidadesSocioemocionais': Array com 1 a 3 capacidades (ex: 'Demonstrar raciocínio lógico.', 'Demonstrar atenção a detalhes.', 'Demonstrar responsabilidade.').
+   - 'conhecimentos': Array com tópicos de conhecimentos técnicos e normas pertinentes.
+   - 'contextualizacao': Narrativa imersiva de uma empresa ou cenário industrial real com um problema a ser resolvido.
+   - 'observacoesDocente': Instruções e dicas pedagógicas para a condução do professor.
+   - 'desafio': O desafio técnico que os alunos devem solucionar.
+   - 'resultadosEsperados': Entregas tangíveis esperadas dos alunos.
+   - 'estrategiasEnsino': Métodos didáticos (ex: 'Projeto prático em laboratório; Trabalho em equipe; Resolução guiada').
+   - 'instrumentosAvaliacao': Instrumentos avaliativos (ex: 'Avaliação prática de desempenho; Relatório técnico; Checklist').
+   - 'recursos': Máquinas, bancadas, ferramentas ou softwares específicos da área.
+   - 'criterios': Array de objetos com critérios de avaliação observáveis no presente do indicativo:
+       - 'cap': Nome da capacidade ou "" se for desdobramento.
+       - 'crit': Texto do critério observável (ex: 'Parametriza o equipamento de acordo com as especificações técnicas.').
+       - 'tipo': "C" para Crítico (eliminatório) ou "D" para Desejável (formativo/qualidade). Balanceie rigorosamente entre C e D (50% C e 50% D).
+
+Retorne APENAS um JSON no seguinte formato:
+{
+  "curso": "${courseName}",
+  "unidade": "${courseInfo.courseUnit || courseName}",
+  "sigla": "${sigla}",
+  "cargaHoraria": ${totalHours},
+  "numAulas": "${totalHours} aulas de 60 minutos cada",
+  "docente": "${courseInfo.docente || 'Docente SENAI'}",
+  "turma": "${courseInfo.turma || 'TURMA 2026'}",
+  "semAno": "${courseInfo.semAno || '2º Sem/2026'}",
+  "escola": "${courseInfo.escola || 'Escola SENAI'}",
+  "objetivoUC": "Objetivo pedagógico da Unidade Curricular...",
+  "situacoes": [ ... ]
+}`;
+
+    const requestBody = JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            { role: "system", content: "Você é um gerador especializado de Planos de Ensino MSEP do SENAI. Responda exclusivamente em JSON válido." },
+            { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_completion_tokens: 4096
+    });
+
+    return new Promise((resolve) => {
+        const req = https.request({
+            hostname: 'api.groq.com',
+            port: 443,
+            path: '/openai/v1/chat/completions',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey.trim()}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            },
+            timeout: 15000
+        }, (res) => {
+            let resData = '';
+            res.on('data', chunk => { resData += chunk; });
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        const parsed = JSON.parse(resData);
+                        const content = parsed.choices[0].message.content;
+                        const plan = JSON.parse(content);
+                        
+                        // Ensure rows are numbered correctly
+                        let globalRow = 15;
+                        if (plan.situacoes && Array.isArray(plan.situacoes)) {
+                            plan.situacoes.forEach(sa => {
+                                if (sa.criterios && Array.isArray(sa.criterios)) {
+                                    sa.criterios.forEach(c => {
+                                        c.row = globalRow++;
+                                    });
+                                }
+                                globalRow++;
+                            });
+                        }
+                        return resolve(plan);
+                    } catch (e) {
+                        console.warn('Groq JSON parse error, falling back to dynamic plan:', e);
+                        resolve(null);
+                    }
+                } else {
+                    console.warn(`Groq API returned status ${res.statusCode}:`, resData);
+                    resolve(null);
+                }
+            });
+        });
+
+        req.on('error', (err) => {
+            console.warn('Groq request failed, falling back:', err.message);
+            resolve(null);
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            console.warn('Groq request timed out, falling back to local engine');
+            resolve(null);
+        });
+
+        req.write(requestBody);
+        req.end();
+    });
 }
 
 function buildGenericDynamicPlan(courseInfo) {
@@ -590,10 +753,10 @@ module.exports = (req, res) => {
     if (pathname.endsWith('/api/generate-msep') || pathname === '/api/generate-msep') {
         let body = '';
         req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 const data = JSON.parse(body);
-                const plan = generateMSEPPlan(data);
+                const plan = await generateMSEPPlan(data);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true, plan }));
             } catch (err) {
