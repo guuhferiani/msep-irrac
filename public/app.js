@@ -4,6 +4,81 @@
 // ==========================================================================
 
 const STORAGE_KEY = 'docente_senai_state_v3';
+const GROQ_STORAGE_KEY = 'docente_senai_groq_key';
+
+function getGroqApiKey() {
+    return localStorage.getItem(GROQ_STORAGE_KEY) || '';
+}
+
+function setGroqApiKey(key) {
+    if (key && key.trim()) {
+        localStorage.setItem(GROQ_STORAGE_KEY, key.trim());
+    } else {
+        localStorage.removeItem(GROQ_STORAGE_KEY);
+    }
+}
+
+async function checkGroqStatus() {
+    const localKey = getGroqApiKey();
+    const dot = document.getElementById('ai-header-dot');
+    const text = document.getElementById('ai-header-text');
+
+    try {
+        const res = await fetch('/api/ai-status');
+        const data = await res.json();
+        const hasKey = (localKey && localKey.trim().length > 10) || data.groqConfigured;
+        
+        if (hasKey) {
+            if (dot) dot.className = 'ai-pulse-dot active';
+            if (text) text.textContent = '🟢 IA Groq Ativa';
+        } else {
+            if (dot) dot.className = 'ai-pulse-dot';
+            if (text) text.textContent = '⚡ Ativar IA (Groq)';
+        }
+        return hasKey;
+    } catch (e) {
+        if (localKey && localKey.trim().length > 10) {
+            if (dot) dot.className = 'ai-pulse-dot active';
+            if (text) text.textContent = '🟢 IA Groq Ativa';
+            return true;
+        }
+        if (dot) dot.className = 'ai-pulse-dot';
+        if (text) text.textContent = '⚡ Ativar IA (Groq)';
+        return false;
+    }
+}
+
+async function updateModalAiStatus() {
+    const localKey = getGroqApiKey();
+    const modalDot = document.getElementById('ai-modal-dot');
+    const modalTitle = document.getElementById('ai-modal-title');
+    const modalDesc = document.getElementById('ai-modal-desc');
+
+    try {
+        const res = await fetch('/api/ai-status');
+        const data = await res.json();
+        
+        if (data.groqConfigured) {
+            if (modalDot) modalDot.className = 'status-indicator-dot active';
+            if (modalTitle) modalTitle.textContent = 'Conectado via Servidor (.env)';
+            if (modalDesc) modalDesc.textContent = 'A chave GROQ_API_KEY do servidor está configurada e ativa.';
+        } else if (localKey && localKey.length > 10) {
+            if (modalDot) modalDot.className = 'status-indicator-dot active';
+            if (modalTitle) modalTitle.textContent = 'Conectado via Navegador (LocalStorage)';
+            if (modalDesc) modalDesc.textContent = 'Chave personalizada salva no seu navegador.';
+        } else {
+            if (modalDot) modalDot.className = 'status-indicator-dot';
+            if (modalTitle) modalTitle.textContent = 'Modo Heurístico Multiárea (Offline)';
+            if (modalDesc) modalDesc.textContent = 'Insira uma chave da Groq abaixo para ativar a geração por IA Llama 3.3 70B.';
+        }
+    } catch (e) {
+        if (localKey && localKey.length > 10) {
+            if (modalDot) modalDot.className = 'status-indicator-dot active';
+            if (modalTitle) modalTitle.textContent = 'Chave Local Configurada';
+            if (modalDesc) modalDesc.textContent = 'Pronto para envio.';
+        }
+    }
+}
 
 let currentStep = 1;
 let currentCourseData = {
@@ -122,6 +197,7 @@ function initSemestreAnoOptions() {
 document.addEventListener('DOMContentLoaded', () => {
     initSemestreAnoOptions();
     initEventListeners();
+    checkGroqStatus();
 
     // Check for saved local state
     const hasSavedState = loadFromLocalStorage();
@@ -244,6 +320,83 @@ function initEventListeners() {
     const btnReset = document.getElementById('btn-reset-plan');
     if (btnReset) {
         btnReset.addEventListener('click', handleResetPlan);
+    }
+
+    // AI Modal Handlers
+    const btnAiConfig = document.getElementById('btn-ai-config');
+    const modalAi = document.getElementById('modal-ai-config');
+    const btnCloseAi = document.getElementById('btn-close-ai-modal');
+    const btnToggleKey = document.getElementById('btn-toggle-key');
+    const inpGroqKey = document.getElementById('inp-groq-key');
+    const btnTestGroq = document.getElementById('btn-test-groq-key');
+    const btnSaveGroq = document.getElementById('btn-save-groq-key');
+    const aiTestResult = document.getElementById('ai-test-result');
+
+    if (btnAiConfig && modalAi) {
+        btnAiConfig.addEventListener('click', () => {
+            if (inpGroqKey) inpGroqKey.value = getGroqApiKey() || '';
+            if (aiTestResult) aiTestResult.style.display = 'none';
+            updateModalAiStatus();
+            modalAi.style.display = 'flex';
+        });
+    }
+
+    if (btnCloseAi && modalAi) {
+        btnCloseAi.addEventListener('click', () => {
+            modalAi.style.display = 'none';
+        });
+    }
+
+    if (modalAi) {
+        modalAi.addEventListener('click', (e) => {
+            if (e.target === modalAi) {
+                modalAi.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnToggleKey && inpGroqKey) {
+        btnToggleKey.addEventListener('click', () => {
+            inpGroqKey.type = (inpGroqKey.type === 'password') ? 'text' : 'password';
+        });
+    }
+
+    if (btnTestGroq && inpGroqKey && aiTestResult) {
+        btnTestGroq.addEventListener('click', async () => {
+            const key = inpGroqKey.value.trim();
+            aiTestResult.style.display = 'block';
+            aiTestResult.className = 'ai-test-alert loading';
+            aiTestResult.innerHTML = '⏳ Conectando ao cluster LPU da Groq (Llama 3.3 70B)...';
+
+            try {
+                const res = await fetch('/api/test-groq', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: key })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    aiTestResult.className = 'ai-test-alert success';
+                    aiTestResult.innerHTML = `✅ <strong>Conexão bem-sucedida!</strong><br>${data.message}`;
+                } else {
+                    aiTestResult.className = 'ai-test-alert error';
+                    aiTestResult.innerHTML = `❌ <strong>Erro na conexão:</strong> ${data.error || 'Chave inválida'}`;
+                }
+            } catch (e) {
+                aiTestResult.className = 'ai-test-alert error';
+                aiTestResult.innerHTML = `❌ <strong>Erro de rede:</strong> ${e.message}`;
+            }
+        });
+    }
+
+    if (btnSaveGroq && inpGroqKey && modalAi) {
+        btnSaveGroq.addEventListener('click', async () => {
+            const key = inpGroqKey.value.trim();
+            setGroqApiKey(key);
+            await checkGroqStatus();
+            modalAi.style.display = 'none';
+            showToast(key ? '✨ Chave da Groq salva com sucesso! IA Ativa.' : 'Chave removida. Modo Heurístico ativado.');
+        });
     }
 
     // Global click outside listener to close custom dropdowns
@@ -515,10 +668,15 @@ async function handleGenerateMSEP() {
     showToast('Gerando Situações de Aprendizagem MSEP Modular...');
 
     try {
+        const payload = {
+            ...currentCourseData,
+            groqApiKey: getGroqApiKey()
+        };
+
         const response = await fetch('/api/generate-msep', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(currentCourseData)
+            body: JSON.stringify(payload)
         });
 
         if (response.ok) {
@@ -527,7 +685,12 @@ async function handleGenerateMSEP() {
             saveToLocalStorage();
             renderMSEPViewer();
             goToStep(3);
-            showToast(`Plano MSEP gerado com ${currentMsepPlan.situacoes.length} Situações de Aprendizagem!`);
+
+            if (currentMsepPlan._generatedByAI) {
+                showToast(`✨ Plano MSEP gerado via IA Groq (Llama 3.3 70B) com ${currentMsepPlan.situacoes.length} SAs!`);
+            } else {
+                showToast(`📋 Plano MSEP gerado com sucesso com ${currentMsepPlan.situacoes.length} SAs!`);
+            }
         } else {
             throw new Error('Falha na resposta do servidor');
         }

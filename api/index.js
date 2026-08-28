@@ -324,7 +324,7 @@ function buildPresetPlan(preset, overrides) {
 
 // ⚡ Ultra-Fast Groq AI LPU Pedagogical Generator (Llama 3.3 70B)
 async function generateWithGroq(courseInfo) {
-    const apiKey = process.env.GROQ_API_KEY || (courseInfo && courseInfo.groqApiKey);
+    const apiKey = (courseInfo && courseInfo.groqApiKey) || process.env.GROQ_API_KEY;
     if (!apiKey || apiKey === 'gsk_sua_chave_groq_aqui' || apiKey.trim().length < 10) {
         return null;
     }
@@ -404,7 +404,7 @@ Retorne APENAS um JSON no seguinte formato:
                 'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(requestBody)
             },
-            timeout: 15000
+            timeout: 20000
         }, (res) => {
             let resData = '';
             res.on('data', chunk => { resData += chunk; });
@@ -414,6 +414,8 @@ Retorne APENAS um JSON no seguinte formato:
                         const parsed = JSON.parse(resData);
                         const content = parsed.choices[0].message.content;
                         const plan = JSON.parse(content);
+                        plan._generatedByAI = true;
+                        plan._aiProvider = 'Groq (Llama 3.3 70B)';
                         
                         // Ensure rows are numbered correctly
                         let globalRow = 15;
@@ -455,21 +457,246 @@ Retorne APENAS um JSON no seguinte formato:
     });
 }
 
+// Test Groq API Key Connection
+async function testGroqConnection(keyToTest) {
+    const apiKey = (keyToTest && keyToTest.trim()) || process.env.GROQ_API_KEY;
+    if (!apiKey || apiKey === 'gsk_sua_chave_groq_aqui' || apiKey.trim().length < 10) {
+        return { success: false, error: 'Chave de API não informada ou inválida.' };
+    }
+
+    const requestBody = JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            { role: "user", content: "Responda apenas com a palavra OK." }
+        ],
+        max_completion_tokens: 10
+    });
+
+    return new Promise((resolve) => {
+        const req = https.request({
+            hostname: 'api.groq.com',
+            port: 443,
+            path: '/openai/v1/chat/completions',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey.trim()}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            },
+            timeout: 10000
+        }, (res) => {
+            let resData = '';
+            res.on('data', chunk => { resData += chunk; });
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    resolve({ success: true, message: 'Conexão com Groq LPU (Llama 3.3 70B) validada com sucesso!' });
+                } else {
+                    let errMsg = `Erro ${res.statusCode}`;
+                    try {
+                        const parsed = JSON.parse(resData);
+                        if (parsed.error && parsed.error.message) errMsg = parsed.error.message;
+                    } catch (e) {}
+                    resolve({ success: false, error: errMsg });
+                }
+            });
+        });
+
+        req.on('error', (err) => {
+            resolve({ success: false, error: `Falha de rede: ${err.message}` });
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            resolve({ success: false, error: 'Tempo limite esgotado ao conectar à Groq.' });
+        });
+
+        req.write(requestBody);
+        req.end();
+    });
+}
+
 function buildGenericDynamicPlan(courseInfo) {
     const totalHours = parseInt(courseInfo.workload) || 40;
     const courseName = courseInfo.courseName || "Curso Técnico de Formação";
     const sigla = courseInfo.unitSigla || "CURSO";
-    const capsTec = courseInfo.capacidadesTecnicas && courseInfo.capacidadesTecnicas.length > 0
-        ? courseInfo.capacidadesTecnicas
-        : [
-            `Identificar fundamentos e normas aplicáveis a ${courseName}.`,
-            `Operar equipamentos e ferramentas específicas de ${courseName}.`,
-            `Executar procedimentos técnicos e montagens de soluções em ${courseName}.`,
-            `Validar a qualidade e conformidade das entregas técnicas.`
-        ];
-    const capsSocio = courseInfo.capacidadesSocioemocionais && courseInfo.capacidadesSocioemocionais.length > 0
-        ? courseInfo.capacidadesSocioemocionais
-        : ["Demonstrar atenção a detalhes.", "Demonstrar raciocínio lógico.", "Demonstrar responsabilidade e trabalho em equipe."];
+    const nameLower = courseName.toLowerCase();
+
+    // Domain heuristic profiles
+    let domain = "general";
+    if (nameLower.includes("intelig") || nameLower.includes("generativa") || nameLower.includes("ia") || nameLower.includes("prompt") || nameLower.includes("chatgpt") || nameLower.includes("machine")) {
+        domain = "ia";
+    } else if (nameLower.includes("software") || nameLower.includes("program") || nameLower.includes("sistemas") || nameLower.includes("web") || nameLower.includes("python") || nameLower.includes("java") || nameLower.includes("react")) {
+        domain = "dev";
+    } else if (nameLower.includes("elétr") || nameLower.includes("instalador") || nameLower.includes("predial") || nameLower.includes("comando") || nameLower.includes("potência")) {
+        domain = "eletrica";
+    } else if (nameLower.includes("clp") || nameLower.includes("automa") || nameLower.includes("robót") || nameLower.includes("mecatr")) {
+        domain = "automacao";
+    } else if (nameLower.includes("usinag") || nameLower.includes("mecân") || nameLower.includes("torno") || nameLower.includes("cnc") || nameLower.includes("desenho")) {
+        domain = "mecanica";
+    } else if (nameLower.includes("veícul") || nameLower.includes("auto") || nameLower.includes("motor") || nameLower.includes("injeç")) {
+        domain = "automotiva";
+    } else if (nameLower.includes("logíst") || nameLower.includes("estoque") || nameLower.includes("empilhadeira") || nameLower.includes("armazen")) {
+        domain = "logistica";
+    }
+
+    const domainConfigs = {
+        ia: {
+            caps: [
+                "Projetar e estruturar prompts avançados para geração de código, testes e documentação técnica.",
+                "Integrar modelos de IA generativa e APIs com validação de métricas de acurácia e conformidade ética.",
+                "Implementar rotinas de automação assistida por IA respeitando privacidade de dados e segurança.",
+                "Avaliar criticamente os resultados gerados por modelos de linguagem, corrigindo inconsistências e alucinações."
+            ],
+            socio: ["Demonstrar pensamento crítico e visão sistêmica.", "Demonstrar atenção a detalhes e rigor ético.", "Demonstrar adaptabilidade frente a inovações."],
+            conhecimentos: [
+                "1. Fundamentos de LLMs: Arquitetura Transformer, tokens, embeddings e contexto.",
+                "2. Engenharia de Prompts: Zero-shot, Few-shot, Chain-of-Thought e System Prompts.",
+                "3. Integração de APIs: Endpoints, autenticação via chaves, tratamento de respostas JSON e streaming.",
+                "4. Governança e Ética: LGPD, mitigação de vieses, conformidade de código e propriedade intelectual."
+            ],
+            contextBase: "A consultoria 'Nexus AI Solutions' foi contratada por um grupo corporativo para automatizar fluxos operacionais críticos e implementar ferramentas com IA Generativa.",
+            desafioBase: "Desenvolver e validar pipelines assistidos por IA Generativa com alta precisão, garantindo conformidade técnica e integridade dos dados.",
+            recursos: "Computadores com acesso a ambientes de desenvolvimento (VS Code/Python/Node.js), APIs de LLMs e repositórios versionados.",
+            entregaveis: "Código-fonte documentado, relatórios comparativos de eficácia dos prompts e aplicação integrada funcional."
+        },
+        dev: {
+            caps: [
+                "Projetar arquitetura de software e modelagem de banco de dados relacional e não-relacional.",
+                "Desenvolver APIs RESTful e serviços de backend com tratamento de erros e segurança.",
+                "Implementar interfaces web interativas e responsivas com boas práticas de usabilidade.",
+                "Executar testes automatizados (unitários e integração) e esteiras de integração contínua."
+            ],
+            socio: ["Demonstrar raciocínio lógico.", "Demonstrar trabalho colaborativo e comunicação técnica.", "Demonstrar organização e foco em entregas."],
+            conhecimentos: [
+                "1. Arquitetura de Software: Padrão MVC, Microsserviços e Clean Architecture.",
+                "2. Banco de Dados: Modelagem relacional, queries SQL, índices e integridade referencial.",
+                "3. Desenvolvimento Backend: APIs RESTful, autenticação JWT e validação de payloads.",
+                "4. Qualidade de Software: Testes automatizados, versionamento com Git e CI/CD."
+            ],
+            contextBase: "A software house 'TechForge Systems' precisa entregar um sistema modular escalável para atender à alta demanda de gestão de seus clientes corporativos.",
+            desafioBase: "Construir uma solução de software robusta, desenvolvendo desde a camada de dados e lógica de negócio até a interface final validada.",
+            recursos: "Laboratório de informática com IDEs modernas, servidores locais de desenvolvimento e ferramentas de banco de dados.",
+            entregaveis: "Repositório Git com aplicação completa, documentação técnica da API e suite de testes funcionais."
+        },
+        eletrica: {
+            caps: [
+                "Interpretar e elaborar diagramas elétricos unifilares e multifilares conforme normas da ABNT.",
+                "Dimensionar condutores, dispositivos de proteção (disjuntores/DR/DPS) e eletrodutos.",
+                "Executar instalações elétricas prediais e comandos de motores com estrita observância à NR-10.",
+                "Realizar testes de continuidade, medição de grandezas elétricas e comissionamento de circuitos."
+            ],
+            socio: ["Demonstrar rigor no cumprimento de normas de segurança.", "Demonstrar atenção a detalhes.", "Demonstrar responsabilidade profissional."],
+            conhecimentos: [
+                "1. Normas Técnicas: NBR 5410 (Instalações Elétricas de Baixa Tensão) e NR-10 (Segurança em Eletricidade).",
+                "2. Dimensionamento Elétrico: Critérios de capacidade de condução de corrente, queda de tensão e sobrecarga.",
+                "3. Dispositivos de Proteção e Seccionamento: Disjuntores termomagnéticos, IDR, DPS e barramentos.",
+                "4. Instrumentação e Medições: Uso de multímetro, alicate amperímetro e terrômetro."
+            ],
+            contextBase: "A construtora 'EletroPrime Engenharia' está finalizando uma edificação comercial e necessita da montagem completa do padrão de entrada e quadros de distribuição.",
+            desafioBase: "Executar o cabeamento, conexões e parametrização dos dispositivos de proteção e acionamento, garantindo 100% de segurança e conformidade normativa.",
+            recursos: "Bancadas de instalações elétricas prediais, ferramentas manuais isoladas (1000V), EPIs e instrumentos de medição.",
+            entregaveis: "Quadro de distribuição montado e energizado com sucesso, relatório de conformidade da NBR 5410 e checklist de testes."
+        },
+        automacao: {
+            caps: [
+                "Programar Controladores Lógicos Programáveis (CLP) em linguagens normatizadas IEC 61131-3.",
+                "Parametrizar inversores de frequência e acionamentos para controle de velocidade e torque.",
+                "Integrar sensores industriais, atuadores eletropneumáticos e redes de comunicação de campo.",
+                "Desenvolver telas de Interface Homem-Máquina (IHM) para monitoramento e supervisão do processo."
+            ],
+            socio: ["Demonstrar raciocínio lógico.", "Demonstrar atenção a detalhes.", "Demonstrar iniciativa na resolução de falhas."],
+            conhecimentos: [
+                "1. Arquitetura de CLP: Memória, ciclos de varredura (scan), módulos de I/O discretos e analógicos.",
+                "2. Linguagens de Programação: Ladder (LD), Diagrama de Blocos de Funções (FBD) e Texto Estruturado (ST).",
+                "3. Redes Industriais: Protocolos Modbus, Profinet/EthernetIP e parametrização de nós.",
+                "4. Sistemas Eletropneumáticos: Válvulas direcionais, atuadores e sensores de proximidade indutivos/ópticos."
+            ],
+            contextBase: "A indústria automobilística 'AutoTech Brasil' está automatizando sua linha de montagem e contratou a equipe técnica para programar a nova estação robótica.",
+            desafioBase: "Elaborar a lógica de controle no CLP, interligar os sensores e atuadores da célula e validar a rotina automática em modo contínuo sem paradas.",
+            recursos: "Bancadas didáticas com CLP, IHM, módulos de I/O, inversores de frequência e software de programação/simulação.",
+            entregaveis: "Programa do CLP funcional e comentado, telas de IHM ativas e relatório técnico de comissionamento da automação."
+        },
+        mecanica: {
+            caps: [
+                "Interpretar desenhos técnicos mecânicos com cotagem funcional e tolerâncias geométricas (GD&T).",
+                "Operar máquinas-ferramentas convencionais e CNC respeitando parâmetros de usinagem e normas de segurança.",
+                "Realizar medições e controle dimensional com paquímetros, micrômetros e relógio comparador.",
+                "Executar procedimentos de ajuste, traçagem e acabamento mecânico em peças metálicas e polímeros."
+            ],
+            socio: ["Demonstrar atenção a detalhes.", "Demonstrar zelo pelo ferramental e patrimônio.", "Demonstrar postura preventiva de segurança."],
+            conhecimentos: [
+                "1. Leitura e Interpretação de Desenho: Projeções ortogonais, cortes, vistas auxiliares e rugosidade superficial.",
+                "2. Metrologia Industrial: Paquímetro, micrômetro, goniômetro e cálculo de incerteza de medição.",
+                "3. Usinagem: Cinemática de torneamento/fresamento, fluidos de corte e geometria de ferramentas.",
+                "4. Materiais e Tratamentos: Aços carbono, ligas não-ferrosas e propriedades mecânicas."
+            ],
+            contextBase: "A metalúrgica 'Precisão Metalmecânica' recebeu um pedido urgente de usinagem de eixos e componentes críticos para a linha de produção de um cliente.",
+            desafioBase: "Fabricar as peças no torno e fresadora respeitando rigorosamente as cotas de projeto e o padrão de acabamento especificado no desenho.",
+            recursos: "Oficina mecânica com tornos, fresadoras, bancada de ajuste, ferramentas de corte e instrumentos de metrologia.",
+            entregaveis: "Peça usinada em conformidade com o desenho técnico, relatório de controle dimensional e ficha de processo."
+        },
+        automotiva: {
+            caps: [
+                "Diagnosticar falhas em sistemas de gerenciamento eletrônico do motor utilizando scanner automotivo e osciloscópio.",
+                "Realizar manutenção e testes em sistemas de freios (ABS/ESC), suspensão e direção veicular.",
+                "Interpretar diagramas elétricos automotivos e analisar sinais de sensores e atuadores do trem de força.",
+                "Executar inspeções e procedimentos de revisão periódica conforme manuais técnicos dos fabricantes."
+            ],
+            socio: ["Demonstrar raciocínio analítico.", "Demonstrar zelo com o veículo do cliente.", "Demonstrar responsabilidade técnica."],
+            conhecimentos: [
+                "1. Injeção Eletrônica: Sensores (MAP, MAF, sonda lambda, rotação) e atuadores (injetores, bobinas, corpo de borboleta).",
+                "2. Eletroeletrônica Automotiva: Bateria, alternador, motor de partida e redes de comunicação veicular (CAN bus).",
+                "3. Dinâmica Veicular: Geometria de direção, amortecedores, molas e sistemas de freios hidráulicos.",
+                "4. Diagnóstico Automotivo: Leitura de DTCs (códigos de falha), análise de fluxo de dados e teste de componentes."
+            ],
+            contextBase: "A concessionária 'AutoPerformance Motors' identificou um veículo com sintomas de perda de potência intermitente e falha no sistema de injeção.",
+            desafioBase: "Realizar o diagnóstico avançado guiado por osciloscópio e scanner, identificar o componente defeituoso e executar o reparo técnico em padrão de montadora.",
+            recursos: "Oficina automotiva com elevadores veiculares, scanners de diagnóstico, osciloscópio automotivo, multímetros e ferramentas especiais.",
+            entregaveis: "Veículo reparado e testado com emissões dentro do padrão, checklist de diagnóstico preenchido e relatório de ordem de serviço."
+        },
+        logistica: {
+            caps: [
+                "Planejar e coordenar operações de recebimento, conferência, armazenagem e expedição de mercadorias.",
+                "Operar procedimentos de movimentação interna de cargas com rigorosa observância à NR-11.",
+                "Gerenciar acuracidade de estoque, curva ABC e indicadores de desempenho logístico (KPIs/OTIF).",
+                "Organizar fluxos de distribuição física, endereçamento e roteirização com sustentabilidade e rastreabilidade."
+            ],
+            socio: ["Demonstrar organização e método.", "Demonstrar visão sistêmica.", "Demonstrar comunicação assertiva."],
+            conhecimentos: [
+                "1. Gestão de Armazenagem: Sistemas WMS, tipos de estruturas de estocagem (porta-paletes, drive-in) e layout.",
+                "2. Segurança Operacional: NR-11 (Transporte, Movimentação e Armazenagem de Materiais) e checklists de inspeção.",
+                "3. Controle de Estoques: Inventários cíclicos, lote econômico de compra, ponto de pedido e FIFO/FEFO.",
+                "4. Distribuição e Transporte: Modais de transporte, cubagem de carga e nível de serviço ao cliente."
+            ],
+            contextBase: "O centro de distribuição 'Logix Supply Chain' está reestruturando seus processos logísticos para reduzir o tempo de picking e zerar avarias.",
+            desafioBase: "Mapear os fluxos internos, dimensionar os endereçamentos do armazém e executar a operação integrada garantindo agilidade e precisão de inventário.",
+            recursos: "Espaço didático de simulação logística, software de controle de estoque/WMS, coletores de dados e equipamentos de movimentação.",
+            entregaveis: "Mapeamento de processos logísticos concluído, relatório de acuracidade de inventário e plano de endereçamento validado."
+        },
+        general: {
+            caps: [
+                `Identificar fundamentos técnicos, normas e requisitos aplicáveis a ${courseName}.`,
+                `Operar ferramentas, softwares e equipamentos específicos da área de ${courseName}.`,
+                `Executar procedimentos técnicos e montagens de soluções em ${courseName} com qualidade.`,
+                `Validar a conformidade técnica, segurança e eficácia das entregas do projeto.`
+            ],
+            socio: ["Demonstrar atenção a detalhes.", "Demonstrar raciocínio lógico.", "Demonstrar responsabilidade e trabalho em equipe."],
+            conhecimentos: [
+                `1. Fundamentos e Princípios Técnicos essenciais de ${courseName}.`,
+                `2. Procedimentos e Boas Práticas operacionais da área profissional.`,
+                `3. Normas Técnicas e Regulamentadoras pertinentes ao setor industrial.`,
+                `4. Técnicas de Diagnóstico, Validação e Controle de Qualidade.`
+            ],
+            contextBase: `A empresa 'Soluções Industriais e Tecnológicas' contratou sua equipe técnica para desenvolver um projeto de alta relevância no setor de ${courseName}.`,
+            desafioBase: `Como profissionais técnicos, planejar, executar e validar a solução solicitada aplicando os conceitos e ferramentas de ${courseName}.`,
+            recursos: `Ambiente pedagógico especializado (laboratório/oficina), ferramentas manuais e equipamentos específicos de ${courseName}.`,
+            entregaveis: `Produto/serviço técnico concluído com conformidade, documentação técnica assinada e relatório de validação das entregas.`
+        }
+    };
+
+    const cfg = domainConfigs[domain] || domainConfigs.general;
+    const capsTec = courseInfo.capacidadesTecnicas && courseInfo.capacidadesTecnicas.length > 0 ? courseInfo.capacidadesTecnicas : cfg.caps;
+    const capsSocio = courseInfo.capacidadesSocioemocionais && courseInfo.capacidadesSocioemocionais.length > 0 ? courseInfo.capacidadesSocioemocionais : cfg.socio;
 
     let numSAs = 2;
     if (totalHours <= 30) numSAs = 1;
@@ -526,19 +753,19 @@ function buildGenericDynamicPlan(courseInfo) {
 
         situacoes.push({
             numero: saNum,
-            titulo: `Situação de Aprendizagem ${saNum} - Aplicação Prática de ${courseName}`,
+            titulo: `Situação de Aprendizagem ${saNum} - ${i === 1 ? 'Fundamentação e Planejamento' : (i === numSAs ? 'Integração Final e Validação Técnica' : 'Desenvolvimento Prático')} de ${courseName}`,
             aulas: hoursForSA,
             estrategiaTipo: (i === 1) ? "Situação-problema" : (i === numSAs ? "Estudo de caso / Projeto Integrador" : "Projeto"),
             capacidadesTecnicas: assignedCaps,
             capacidadesSocioemocionais: [socioCap],
-            conhecimentos: [`Fundamentos, técnicas e procedimentos operacionais de ${courseName}.`],
-            contextualizacao: `Uma empresa do setor industrial contratou sua equipe técnica para solucionar um desafio operacional relevante. O objetivo é analisar os requisitos do cliente, planejar as etapas de intervenção técnica e executar os procedimentos práticos de ${courseName} com máxima eficiência e qualidade.`,
+            conhecimentos: cfg.conhecimentos || [`Fundamentos e procedimentos técnicos de ${courseName}.`],
+            contextualizacao: `${cfg.contextBase} O objetivo nesta etapa é analisar os requisitos técnicos, planejar a intervenção e executar os procedimentos de ${courseName} com máxima eficiência e qualidade.`,
             observacoesDocente: "Conduzir a mediação pedagógica estimulando o protagonismo dos alunos na resolução prática das tarefas em laboratório ou oficina.",
-            desafio: `Como profissionais técnicos, planejar, desenvolver e validar a solução solicitada aplicando os conceitos e ferramentas de ${courseName}.`,
-            resultadosEsperados: "Produto/serviço técnico concluído com conformidade, documentação técnica assinada e relatório de validação das entregas.",
+            desafio: `${cfg.desafioBase}`,
+            resultadosEsperados: `${cfg.entregaveis}`,
             estrategiasEnsino: "Exposição dialogada; Aula prática de laboratório/oficina; Resolução colaborativa de problemas.",
             instrumentosAvaliacao: "Avaliação prática de desempenho; Relatório técnico de entrega; Ficha de observação comportamental.",
-            recursos: "Ambiente pedagógico especializado (laboratório/oficina), ferramentas manuais e equipamentos específicos do curso.",
+            recursos: `${cfg.recursos}`,
             criterios: saCriterios
         });
     }
@@ -554,7 +781,9 @@ function buildGenericDynamicPlan(courseInfo) {
         semAno: courseInfo.semAno || "2º Sem/2026",
         escola: courseInfo.escola || "Escola SENAI \"Mariano Ferraz\"",
         objetivoUC: `Desenvolver capacidades técnicas e socioemocionais relativas a ${courseName} de acordo com as diretrizes do MSEP.`,
-        situacoes: situacoes
+        situacoes: situacoes,
+        _generatedByAI: false,
+        _aiProvider: 'Motor Heurístico Multiárea SENAI'
     };
 }
 
@@ -752,6 +981,38 @@ module.exports = (req, res) => {
     if (pathname.endsWith('/api/status') || pathname === '/api/status') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'online', version: '2.0.0', time: new Date() }));
+        return;
+    }
+
+    if (pathname.endsWith('/api/ai-status') || pathname === '/api/ai-status') {
+        const hasEnvKey = !!(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 10 && process.env.GROQ_API_KEY !== 'gsk_sua_chave_groq_aqui');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            groqConfigured: hasEnvKey,
+            model: 'llama-3.3-70b-versatile',
+            provider: 'Groq Cloud LPU'
+        }));
+        return;
+    }
+
+    if (pathname.endsWith('/api/test-groq') || pathname === '/api/test-groq') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', async () => {
+            try {
+                let parsedKey = null;
+                if (body && body.trim()) {
+                    const data = JSON.parse(body);
+                    parsedKey = data.apiKey;
+                }
+                const result = await testGroqConnection(parsedKey);
+                res.writeHead(result.success ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+        });
         return;
     }
 

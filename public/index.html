@@ -21,6 +21,10 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button id="btn-ai-config" class="btn btn-outline btn-sm ai-header-btn" title="Configurar Inteligência Artificial (Groq / Llama 3.3 70B)">
+                    <span class="ai-pulse-dot" id="ai-header-dot"></span>
+                    <span id="ai-header-text">⚡ IA Groq</span>
+                </button>
                 <div class="status-pill" id="storage-status-pill" title="Todas as alterações são salvas automaticamente no seu navegador">
                     <span class="status-dot"></span>
                     <span id="storage-status-text">Salvo no Navegador</span>
@@ -321,6 +325,55 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="modal-btn-cancel">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="modal-btn-confirm">Sim, Iniciar Novo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern AI Configuration Modal (Groq Cloud) -->
+    <div id="modal-ai-config" class="modal-backdrop" style="display: none;">
+        <div class="modal-container modal-lg" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div class="modal-icon-badge ai-badge-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div class="modal-title-wrap">
+                    <h3>Configuração da Inteligência Artificial (Groq API)</h3>
+                    <p>Gere Situações de Aprendizagem e Critérios 100% dinâmicos e personalizados para qualquer curso do SENAI com o modelo <strong>Llama 3.3 70B</strong> em menos de 2 segundos.</p>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+                <div class="ai-status-card" id="ai-status-card">
+                    <div class="ai-status-row">
+                        <span class="status-indicator-dot" id="ai-modal-dot"></span>
+                        <div>
+                            <strong id="ai-modal-title">Status da Conexão</strong>
+                            <p id="ai-modal-desc">Verificando status...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.25rem;">
+                    <label for="inp-groq-key">Chave de API da Groq (GROQ_API_KEY)</label>
+                    <div class="key-input-wrap">
+                        <input type="password" id="inp-groq-key" class="form-control" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                        <button type="button" class="btn-toggle-key" id="btn-toggle-key" title="Mostrar/Ocultar chave">👁️</button>
+                    </div>
+                    <span class="form-hint" style="margin-top: 0.4rem; display: block;">
+                        🔑 Sua chave pode ser obtida gratuitamente em <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color: var(--accent); font-weight: 600; text-decoration: underline;">console.groq.com/keys ↗</a>.
+                    </span>
+                </div>
+
+                <div id="ai-test-result" class="ai-test-alert" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-close-ai-modal">Fechar</button>
+                <button type="button" class="btn btn-outline" id="btn-test-groq-key">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Testar Conexão
+                </button>
+                <button type="button" class="btn btn-primary" id="btn-save-groq-key">Salvar e Ativar</button>
             </div>
         </div>
     </div>
