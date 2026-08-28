@@ -168,8 +168,39 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="inp-sem-ano">Semestre / Ano</label>
-                        <input type="text" id="inp-sem-ano" class="form-control" placeholder="Ex: 2º Sem/2026">
+                        <label for="trigger-semestre">Semestre / Ano <span class="label-auto-tag">Automático</span></label>
+                        <div class="sem-ano-dual-custom">
+                            <!-- Custom Dropdown 1: Semestre -->
+                            <div class="custom-select-wrap sem-select-wrap" id="wrap-semestre" data-selected-val="2º Sem">
+                                <button type="button" class="custom-select-trigger" id="trigger-semestre" aria-haspopup="listbox">
+                                    <span class="custom-select-label" id="label-semestre">2º Semestre</span>
+                                    <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="custom-select-dropdown sem-dropdown-menu" role="listbox">
+                                    <div class="custom-select-item" data-val="1º Sem">
+                                        <div class="item-title">1º Semestre</div>
+                                        <div class="item-desc">Janeiro a Junho</div>
+                                    </div>
+                                    <div class="custom-select-item active" data-val="2º Sem">
+                                        <div class="item-title">2º Semestre</div>
+                                        <div class="item-desc">Julho a Dezembro</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Custom Dropdown 2: Ano -->
+                            <div class="custom-select-wrap ano-select-wrap" id="wrap-ano" data-selected-val="2026">
+                                <button type="button" class="custom-select-trigger" id="trigger-ano" aria-haspopup="listbox">
+                                    <span class="custom-select-label" id="label-ano">2026</span>
+                                    <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="custom-select-dropdown ano-dropdown-menu" id="ano-options-menu" role="listbox">
+                                    <!-- Preenchido dinamicamente via JS -->
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="inp-sem-ano" value="2º Sem/2026">
+                        </div>
                     </div>
                 </div>
 

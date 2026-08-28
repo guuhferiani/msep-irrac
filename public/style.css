@@ -479,6 +479,61 @@ body {
     font-size: 0.84rem;
 }
 
+.sem-ano-dual-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 320px;
+}
+
+.sem-ano-dual-custom .custom-select-wrap {
+    max-width: none;
+}
+
+.sem-ano-dual-custom .sem-select-wrap {
+    flex: 1.4;
+    min-width: 155px;
+}
+
+.sem-ano-dual-custom .ano-select-wrap {
+    flex: 1;
+    min-width: 110px;
+}
+
+.sem-ano-dual-custom .custom-select-trigger {
+    padding: 0.72rem 0.95rem;
+    font-size: 0.92rem;
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    height: 45px;
+}
+
+.sem-dropdown-menu {
+    width: 195px !important;
+}
+
+.ano-dropdown-menu {
+    width: 125px !important;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.label-auto-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #059669;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 9999px;
+    padding: 0.08rem 0.45rem;
+    margin-left: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .card-footer {
     display: flex;
     justify-content: space-between;

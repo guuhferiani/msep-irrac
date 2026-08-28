@@ -20,8 +20,107 @@ let currentCourseData = {
 };
 let currentMsepPlan = null;
 
+// Dynamic Semester / Year Helpers & Custom Floating Selects
+function getAutoSemestreAno() {
+    const now = new Date();
+    const sem = (now.getMonth() < 6) ? "1º Sem" : "2º Sem";
+    const ano = String(now.getFullYear());
+    return { sem, ano, formatted: `${sem}/${ano}` };
+}
+
+function updateSemAnoCombined() {
+    const wrapSem = document.getElementById('wrap-semestre');
+    const wrapAno = document.getElementById('wrap-ano');
+    const inp = document.getElementById('inp-sem-ano');
+
+    const sem = wrapSem ? (wrapSem.getAttribute('data-selected-val') || '2º Sem') : '2º Sem';
+    const ano = wrapAno ? (wrapAno.getAttribute('data-selected-val') || String(new Date().getFullYear())) : String(new Date().getFullYear());
+
+    const combined = `${sem}/${ano}`;
+    if (inp) inp.value = combined;
+    currentCourseData.semAno = combined;
+    syncCourseDataFromInputs();
+    saveToLocalStorage();
+}
+
+function initSemestreAnoOptions() {
+    const anoContainer = document.getElementById('ano-options-menu');
+    if (!anoContainer) return;
+
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear - 2; y <= currentYear + 4; y++) {
+        years.push(y);
+    }
+
+    anoContainer.innerHTML = years.map(y => `
+        <div class="custom-select-item ${y === currentYear ? 'active' : ''}" data-val="${y}">
+            <div class="item-title">${y}</div>
+        </div>
+    `).join('');
+
+    // Attach click listeners to Semestre custom dropdown items
+    document.querySelectorAll('#wrap-semestre .custom-select-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = item.getAttribute('data-val');
+            const label = item.querySelector('.item-title').textContent.trim();
+
+            const wrap = document.getElementById('wrap-semestre');
+            if (wrap) {
+                wrap.setAttribute('data-selected-val', val);
+                const labelEl = document.getElementById('label-semestre');
+                if (labelEl) labelEl.textContent = label;
+                wrap.querySelectorAll('.custom-select-item').forEach(it => it.classList.remove('active'));
+                item.classList.add('active');
+                wrap.classList.remove('open');
+            }
+
+            updateSemAnoCombined();
+        });
+    });
+
+    // Attach click listeners to Ano custom dropdown items
+    document.querySelectorAll('#wrap-ano .custom-select-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = item.getAttribute('data-val');
+            const label = item.querySelector('.item-title').textContent.trim();
+
+            const wrap = document.getElementById('wrap-ano');
+            if (wrap) {
+                wrap.setAttribute('data-selected-val', val);
+                const labelEl = document.getElementById('label-ano');
+                if (labelEl) labelEl.textContent = label;
+                wrap.querySelectorAll('.custom-select-item').forEach(it => it.classList.remove('active'));
+                item.classList.add('active');
+                wrap.classList.remove('open');
+            }
+
+            updateSemAnoCombined();
+        });
+    });
+
+    // Attach trigger listeners
+    ['trigger-semestre', 'trigger-ano'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wrap = btn.closest('.custom-select-wrap');
+                const isOpen = wrap.classList.contains('open');
+                document.querySelectorAll('.custom-select-wrap.open').forEach(w => {
+                    if (w !== wrap) w.classList.remove('open');
+                });
+                wrap.classList.toggle('open', !isOpen);
+            });
+        }
+    });
+}
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+    initSemestreAnoOptions();
     initEventListeners();
 
     // Check for saved local state
@@ -186,6 +285,7 @@ function goToStep(stepNumber, shouldSave = true) {
 
 // Reset form to clean state
 function resetFormToBlank() {
+    const auto = getAutoSemestreAno();
     currentCourseData = {
         courseKey: "custom",
         courseName: "",
@@ -193,7 +293,7 @@ function resetFormToBlank() {
         unitSigla: "",
         workload: "",
         turma: "",
-        semAno: "",
+        semAno: auto.formatted,
         docente: "",
         escola: 'Escola SENAI "Mariano Ferraz"',
         fileName: null
@@ -211,7 +311,58 @@ function populateStep2Inputs() {
     document.getElementById('inp-school').value = currentCourseData.escola || 'Escola SENAI "Mariano Ferraz"';
     document.getElementById('inp-docente').value = currentCourseData.docente || '';
     document.getElementById('inp-turma').value = currentCourseData.turma || '';
-    document.getElementById('inp-sem-ano').value = currentCourseData.semAno || '';
+
+    // Handle Semestre / Ano dual custom selection
+    if (!currentCourseData.semAno) {
+        const auto = getAutoSemestreAno();
+        currentCourseData.semAno = auto.formatted;
+    }
+
+    let parsedSem = (new Date().getMonth() < 6) ? "1º Sem" : "2º Sem";
+    let parsedAno = String(new Date().getFullYear());
+
+    if (currentCourseData.semAno.includes("1º")) {
+        parsedSem = "1º Sem";
+    } else if (currentCourseData.semAno.includes("2º")) {
+        parsedSem = "2º Sem";
+    }
+
+    const yearMatch = currentCourseData.semAno.match(/\d{4}/);
+    if (yearMatch) {
+        parsedAno = yearMatch[0];
+    }
+
+    const wrapSem = document.getElementById('wrap-semestre');
+    const labelSem = document.getElementById('label-semestre');
+    if (wrapSem) {
+        wrapSem.setAttribute('data-selected-val', parsedSem);
+        if (labelSem) labelSem.textContent = (parsedSem === '1º Sem') ? '1º Semestre' : '2º Semestre';
+        wrapSem.querySelectorAll('.custom-select-item').forEach(it => {
+            if (it.getAttribute('data-val') === parsedSem) {
+                it.classList.add('active');
+            } else {
+                it.classList.remove('active');
+            }
+        });
+    }
+
+    const wrapAno = document.getElementById('wrap-ano');
+    const labelAno = document.getElementById('label-ano');
+    if (wrapAno) {
+        wrapAno.setAttribute('data-selected-val', parsedAno);
+        if (labelAno) labelAno.textContent = parsedAno;
+        wrapAno.querySelectorAll('.custom-select-item').forEach(it => {
+            if (it.getAttribute('data-val') === parsedAno) {
+                it.classList.add('active');
+            } else {
+                it.classList.remove('active');
+            }
+        });
+    }
+
+    const inp = document.getElementById('inp-sem-ano');
+    if (inp) inp.value = `${parsedSem}/${parsedAno}`;
+    currentCourseData.semAno = inp ? inp.value : `${parsedSem}/${parsedAno}`;
 
     const badge = document.getElementById('selected-course-badge');
     if (badge) {
@@ -229,7 +380,19 @@ function syncCourseDataFromInputs() {
     currentCourseData.escola = document.getElementById('inp-school').value.trim();
     currentCourseData.docente = document.getElementById('inp-docente').value.trim();
     currentCourseData.turma = document.getElementById('inp-turma').value.trim();
-    currentCourseData.semAno = document.getElementById('inp-sem-ano').value.trim();
+
+    const wrapSem = document.getElementById('wrap-semestre');
+    const wrapAno = document.getElementById('wrap-ano');
+    const inpSemAno = document.getElementById('inp-sem-ano');
+
+    if (wrapSem && wrapAno && inpSemAno) {
+        const sem = wrapSem.getAttribute('data-selected-val') || '2º Sem';
+        const ano = wrapAno.getAttribute('data-selected-val') || String(new Date().getFullYear());
+        inpSemAno.value = `${sem}/${ano}`;
+        currentCourseData.semAno = inpSemAno.value;
+    } else if (inpSemAno && inpSemAno.value) {
+        currentCourseData.semAno = inpSemAno.value.trim();
+    }
 
     const badge = document.getElementById('selected-course-badge');
     if (badge) {
