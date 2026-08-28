@@ -12,7 +12,7 @@ const coursesToTest = [
     { name: "DESENVOLVIMENTO DE SISTEMAS", sigla: "DEV-SIST", workload: 120 }
 ];
 
-const outputDir = path.resolve('c:/Users/SN1087407/Documents/Projeto IRRAC/IRRACs');
+const outputDir = path.join(__dirname, 'test_output_irracs');
 if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
 }

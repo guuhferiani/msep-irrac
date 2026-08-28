@@ -647,6 +647,17 @@ function compileIRRACXlsx(courseData) {
     s3Content = s3Content.replace(/Antigravity!/g, `${courseData.unitSigla}!`);
     s3Content = s3Content.replace(/<c r="M1"[^>]*><f>.*?<\/f><v>.*?<\/v><\/c>/, () => `<c r="M1" s="10" t="str"><f>IF(Cadastro!$E$10=&quot;&quot;,&quot;&quot;,Cadastro!$E$10)</f><v>${courseData.unitSigla}</v></c>`);
 
+    // Dynamic formula adjustment in I2 to prevent #DIV/0! if countDesejaveis or countCriticos is 0
+    let formulaI2 = `ROUND((G2*(50/E2))+(H2*(50/F2)),0)`;
+    if (countCriticos > 0 && countDesejaveis === 0) {
+        formulaI2 = `ROUND(G2*(100/E2),0)`;
+    } else if (countCriticos === 0 && countDesejaveis > 0) {
+        formulaI2 = `ROUND(H2*(100/F2),0)`;
+    } else if (countCriticos === 0 && countDesejaveis === 0) {
+        formulaI2 = `0`;
+    }
+    s3Content = s3Content.replace(/<f t="shared" ref="I2:I15" si="2">.*?<\/f>/, `<f t="shared" ref="I2:I15" si="2">${formulaI2}</f>`);
+
     for (let r = 2; r <= 34; r++) {
         s3Content = s3Content.replace(new RegExp(`<c r="E${r}"[^>]*><v>[\\d.]+<\\/v><\\/c>`), () => `<c r="E${r}" s="1"><v>${countCriticos}</v></c>`);
         s3Content = s3Content.replace(new RegExp(`<f>SUMPRODUCT\\(\\(INDEX\\(${courseData.unitSigla}!\\$J\\$15:\\$AD\\$\\d+,,\\$B${r}\\)<>&quot;&quot;\\)\\*\\(INDEX\\(${courseData.unitSigla}!\\$J\\$15:\\$AD\\$\\d+,,\\$B${r}\\)<>&quot;N\\/A&quot;\\)\\)<\\/f>`), () => `<f>SUMPRODUCT((INDEX(${courseData.unitSigla}!${matrixRange},,$B${r})<>&quot;&quot;)*(INDEX(${courseData.unitSigla}!${matrixRange},,$B${r})<>&quot;N/A&quot;))</f>`);
