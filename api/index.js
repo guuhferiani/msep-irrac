@@ -385,12 +385,12 @@ Retorne APENAS um JSON no seguinte formato:
     const requestBody = JSON.stringify({
         model: "llama-3.3-70b-versatile",
         messages: [
-            { role: "system", content: "Você é um gerador especializado de Planos de Ensino MSEP do SENAI. Responda exclusivamente em JSON válido." },
+            { role: "system", content: "Você é um Engenheiro Pedagógico Especialista do SENAI-SP com domínio completo do MSEP e do IRRAC. Responda exclusivamente com um JSON válido, sem comentários ou texto adicional fora do JSON." },
             { role: "user", content: prompt }
         ],
         response_format: { type: "json_object" },
         temperature: 0.3,
-        max_completion_tokens: 4096
+        max_tokens: 4096
     });
 
     return new Promise((resolve) => {
@@ -412,7 +412,16 @@ Retorne APENAS um JSON no seguinte formato:
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     try {
                         const parsed = JSON.parse(resData);
-                        const content = parsed.choices[0].message.content;
+                        let content = parsed.choices[0].message.content || '';
+                        
+                        // Robust JSON extraction (strip ```json blocks if present)
+                        content = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+                        const firstBrace = content.indexOf('{');
+                        const lastBrace = content.lastIndexOf('}');
+                        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                            content = content.slice(firstBrace, lastBrace + 1);
+                        }
+
                         const plan = JSON.parse(content);
                         plan._generatedByAI = true;
                         plan._aiProvider = 'Groq (Llama 3.3 70B)';
@@ -431,7 +440,7 @@ Retorne APENAS um JSON no seguinte formato:
                         }
                         return resolve(plan);
                     } catch (e) {
-                        console.warn('Groq JSON parse error, falling back to dynamic plan:', e);
+                        console.warn('Groq JSON parse error, falling back to dynamic plan:', e.message);
                         resolve(null);
                     }
                 } else {
