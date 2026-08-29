@@ -850,6 +850,12 @@ function compileIRRACXlsx(courseData) {
     s2Content = s2Content.replace(/<c r="D10"[^>]*><v>\d+<\/v><\/c>/, () => `<c r="D10" s="25" t="s"><v>${strCourseNameIdx}</v></c>`);
     s2Content = s2Content.replace(/<c r="E10"[^>]*><v>\d+<\/v><\/c>/, () => `<c r="E10" s="25" t="s"><v>${strUnitSiglaIdx}</v></c>`);
     s2Content = s2Content.replace(/<c r="F10"[^>]*><v>[\d.]+<\/v><\/c>/, () => `<c r="F10" s="26"><v>${courseData.workload || 40}</v></c>`);
+
+    // Clean mock student names in Cadastro (sheet2)
+    s2Content = s2Content.replace(/<c r="D25"[^>]*><v>\d+<\/v><\/c>/, '<c r="D25" s="88"/>');
+    for (let r = 26; r <= 60; r++) {
+        s2Content = s2Content.replace(new RegExp(`<c r="D${r}"[^>]*><v>\\d+<\\/v><\\/c>`), `<c r="D${r}" s="92"/>`);
+    }
     zip.updateFile('xl/worksheets/sheet2.xml', Buffer.from(s2Content, 'utf8'));
 
     // 5. Update sheet1.xml (Home)
@@ -897,6 +903,19 @@ function compileIRRACXlsx(courseData) {
     s3Content = s3Content.replace(/<f t="shared" ref="I2:I15" si="2">.*?<\/f>/, `<f t="shared" ref="I2:I15" si="2">${formulaI2}</f>`);
 
     for (let r = 2; r <= 34; r++) {
+        const dRow = r + 23;
+        const style = (r <= 22) ? "29" : "27";
+        // Clean student name cache in Consolidação
+        s3Content = s3Content.replace(
+            new RegExp(`<c r="C${r}"[^>]*>.*?<\\/c>`),
+            `<c r="C${r}" s="${style}" t="str"><f>IF(Cadastro!D${dRow}=&quot;&quot;,&quot;&quot;,Cadastro!D${dRow})</f><v></v></c>`
+        );
+        const lFormula = (r === 2) ? ' t="shared" ref="L2:L34" si="3"' : ' t="shared" si="3"';
+        s3Content = s3Content.replace(
+            new RegExp(`<c r="L${r}"[^>]*>.*?<\\/c>`),
+            `<c r="L${r}" s="40" t="str"><f${lFormula}>C${r}</f><v></v></c>`
+        );
+
         s3Content = s3Content.replace(new RegExp(`<c r="E${r}"[^>]*><v>[\\d.]+<\\/v><\\/c>`), () => `<c r="E${r}" s="1"><v>${countCriticos}</v></c>`);
         s3Content = s3Content.replace(new RegExp(`<f>SUMPRODUCT\\(\\(INDEX\\(${courseData.unitSigla}!\\$J\\$15:\\$AD\\$\\d+,,\\$B${r}\\)<>&quot;&quot;\\)\\*\\(INDEX\\(${courseData.unitSigla}!\\$J\\$15:\\$AD\\$\\d+,,\\$B${r}\\)<>&quot;N\\/A&quot;\\)\\)<\\/f>`), () => `<f>SUMPRODUCT((INDEX(${courseData.unitSigla}!${matrixRange},,$B${r})<>&quot;&quot;)*(INDEX(${courseData.unitSigla}!${matrixRange},,$B${r})<>&quot;N/A&quot;))</f>`);
         s3Content = s3Content.replace(new RegExp(`<f>COUNTIFS\\(${courseData.unitSigla}!\\$I\\$15:\\$I\\$\\d+,&quot;C&quot;,OFFSET\\(${courseData.unitSigla}!\\$J\\$15:\\$J\\$\\d+,0,ROW\\(A${r - 1}\\)-1\\),&quot;A&quot;\\)<\\/f>`), () => `<f>COUNTIFS(${courseData.unitSigla}!${evaluationRange},&quot;C&quot;,OFFSET(${courseData.unitSigla}!${offsetRange},0,ROW(A${r - 1})-1),&quot;A&quot;)</f>`);
@@ -914,7 +933,16 @@ function compileIRRACXlsx(courseData) {
     s4Content = s4Content.replace(/<c r="AF9"[^>]*><f>.*?<\/f><v>.*?<\/v><\/c>/, () => `<c r="AF9" s="90" t="str"><f>Cadastro!D6</f><v>${courseData.semAno || "2º Sem/2026"}</v></c>`);
 
     const studentCols = ['J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP'];
-    const strAIdx = getOrAddString('A');
+    
+    // Clean student header names in Unit Sheet (sheet4)
+    for (let i = 0; i < studentCols.length; i++) {
+        const col = studentCols[i];
+        const dRow = i + 25;
+        s4Content = s4Content.replace(
+            new RegExp(`<c r="${col}13"[^>]*>.*?<\\/c>`),
+            `<c r="${col}13" s="80" t="str"><f>IF(Cadastro!$D${dRow}=&quot;&quot;,&quot;&quot;,Cadastro!$D${dRow})</f><v></v></c>`
+        );
+    }
 
     for (const c of allCriteria) {
         const rowNum = c.row;
@@ -932,13 +960,10 @@ function compileIRRACXlsx(courseData) {
         const tipoIdx = getOrAddString(c.tipo);
         rowXml += `<c r="I${rowNum}" s="96" t="s"><v>${tipoIdx}</v></c>`;
         
+        // Leave all student criteria cells completely empty for teacher evaluation
         for (let i = 0; i < studentCols.length; i++) {
             const col = studentCols[i];
-            if (i < 10) {
-                rowXml += `<c r="${col}${rowNum}" s="97" t="s"><v>${strAIdx}</v></c>`;
-            } else {
-                rowXml += `<c r="${col}${rowNum}" s="97"/>`;
-            }
+            rowXml += `<c r="${col}${rowNum}" s="97"/>`;
         }
         
         rowXml += `</row>`;
