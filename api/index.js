@@ -382,8 +382,19 @@ Retorne APENAS um JSON no seguinte formato:
   "situacoes": [ ... ]
 }`;
 
+    // Candidate models in order of capability and speed
+    const candidateModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "groq/compound-mini", "llama-3.3-70b-versatile"];
+
+    for (const modelName of candidateModels) {
+        const plan = await callGroqChat(apiKey, prompt, modelName);
+        if (plan) return plan;
+    }
+    return null;
+}
+
+function callGroqChat(apiKey, prompt, modelName) {
     const requestBody = JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: modelName,
         messages: [
             { role: "system", content: "Você é um Engenheiro Pedagógico Especialista do SENAI-SP com domínio completo do MSEP e do IRRAC. Responda exclusivamente com um JSON válido, sem comentários ou texto adicional fora do JSON." },
             { role: "user", content: prompt }
@@ -424,7 +435,7 @@ Retorne APENAS um JSON no seguinte formato:
 
                         const plan = JSON.parse(content);
                         plan._generatedByAI = true;
-                        plan._aiProvider = 'Groq (Llama 3.3 70B)';
+                        plan._aiProvider = `Groq (${modelName})`;
                         
                         // Ensure rows are numbered correctly
                         let globalRow = 15;
@@ -440,24 +451,24 @@ Retorne APENAS um JSON no seguinte formato:
                         }
                         return resolve(plan);
                     } catch (e) {
-                        console.warn('Groq JSON parse error, falling back to dynamic plan:', e.message);
+                        console.warn(`Groq JSON parse error for ${modelName}:`, e.message);
                         resolve(null);
                     }
                 } else {
-                    console.warn(`Groq API returned status ${res.statusCode}:`, resData);
+                    console.warn(`Groq API (${modelName}) returned status ${res.statusCode}:`, resData);
                     resolve(null);
                 }
             });
         });
 
         req.on('error', (err) => {
-            console.warn('Groq request failed, falling back:', err.message);
+            console.warn(`Groq request failed for ${modelName}:`, err.message);
             resolve(null);
         });
 
         req.on('timeout', () => {
             req.destroy();
-            console.warn('Groq request timed out, falling back to local engine');
+            console.warn(`Groq request timed out for ${modelName}`);
             resolve(null);
         });
 
@@ -473,12 +484,21 @@ async function testGroqConnection(keyToTest) {
         return { success: false, error: 'Chave de API não informada ou inválida.' };
     }
 
+    const testModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "groq/compound-mini", "llama-3.3-70b-versatile"];
+    for (const m of testModels) {
+        const res = await runModelPing(apiKey, m);
+        if (res.success) return res;
+    }
+    return { success: false, error: 'Não foi possível conectar a nenhum modelo da Groq.' };
+}
+
+function runModelPing(apiKey, modelName) {
     const requestBody = JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: modelName,
         messages: [
             { role: "user", content: "Responda apenas com a palavra OK." }
         ],
-        max_completion_tokens: 10
+        max_tokens: 10
     });
 
     return new Promise((resolve) => {
@@ -498,7 +518,7 @@ async function testGroqConnection(keyToTest) {
             res.on('data', chunk => { resData += chunk; });
             res.on('end', () => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
-                    resolve({ success: true, message: 'Conexão com Groq LPU (Llama 3.3 70B) validada com sucesso!' });
+                    resolve({ success: true, message: `Conexão com Groq LPU (${modelName}) validada com sucesso!` });
                 } else {
                     let errMsg = `Erro ${res.statusCode}`;
                     try {
@@ -530,21 +550,21 @@ function buildGenericDynamicPlan(courseInfo) {
     const sigla = courseInfo.unitSigla || "CURSO";
     const nameLower = courseName.toLowerCase();
 
-    // Domain heuristic profiles
+    // Domain heuristic profiles (strict word boundaries to avoid false positives like "confeitaria" or "marcenaria")
     let domain = "general";
-    if (nameLower.includes("intelig") || nameLower.includes("generativa") || nameLower.includes("ia") || nameLower.includes("prompt") || nameLower.includes("chatgpt") || nameLower.includes("machine")) {
+    if (/\b(intelig[eê]ncia\s+artificial|ia|ai|generativa|llm|chatgpt|machine\s+learning|prompt)\b/i.test(courseName)) {
         domain = "ia";
-    } else if (nameLower.includes("software") || nameLower.includes("program") || nameLower.includes("sistemas") || nameLower.includes("web") || nameLower.includes("python") || nameLower.includes("java") || nameLower.includes("react")) {
+    } else if (/\b(software|programa[cç][aã]o|sistemas?|web|dev|frontend|backend|fullstack|python|java|react|c#|javascript)\b/i.test(courseName)) {
         domain = "dev";
-    } else if (nameLower.includes("elétr") || nameLower.includes("instalador") || nameLower.includes("predial") || nameLower.includes("comando") || nameLower.includes("potência")) {
+    } else if (/\b(el[eé]tric[ao]|instalador\s+predial|comandos?\s+el[eé]tricos?|pot[eê]ncia|alta\s+tens[aã]o|baixa\s+tens[aã]o|nr-?10)\b/i.test(courseName)) {
         domain = "eletrica";
-    } else if (nameLower.includes("clp") || nameLower.includes("automa") || nameLower.includes("robót") || nameLower.includes("mecatr")) {
+    } else if (/\b(clp|automa[cç][aã]o|rob[oó]tic[ao]|mecatr[oô]nic[ao]|plc|scada)\b/i.test(courseName)) {
         domain = "automacao";
-    } else if (nameLower.includes("usinag") || nameLower.includes("mecân") || nameLower.includes("torno") || nameLower.includes("cnc") || nameLower.includes("desenho")) {
+    } else if (/\b(usinag(em)?|mec[aâ]nic[ao]|torno|torneiro|fresador|cnc|caldeiraria|soldag(em)?|ajustagem)\b/i.test(courseName)) {
         domain = "mecanica";
-    } else if (nameLower.includes("veícul") || nameLower.includes("auto") || nameLower.includes("motor") || nameLower.includes("injeç")) {
+    } else if (/\b(ve[ií]cul(o|os)|automotiv[ao]|inje[cç][aã]o\s+eletr[oô]nica|mec[aâ]nica\s+de\s+autos?|motor\s+a\s+combust[aã]o)\b/i.test(courseName)) {
         domain = "automotiva";
-    } else if (nameLower.includes("logíst") || nameLower.includes("estoque") || nameLower.includes("empilhadeira") || nameLower.includes("armazen")) {
+    } else if (/\b(log[ií]stic[ao]|estoque|empilhadeir[ao]|armazenag(em)?|supply\s+chain|expedi[cç][aã]o|nr-?11)\b/i.test(courseName)) {
         domain = "logistica";
     }
 
@@ -1023,7 +1043,7 @@ module.exports = (req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
             groqConfigured: hasEnvKey,
-            model: 'llama-3.3-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             provider: 'Groq Cloud LPU'
         }));
         return;
